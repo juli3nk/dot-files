@@ -1,0 +1,22 @@
+export TERM="xterm-256color"
+
+export EDITOR="vim"
+export VISUAL="vim"
+
+# Use less as our pager
+export PAGER="less"
+export LESS="-R"
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL="ignoreboth"
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+HISTIGNORE="history*:ls:pwd:date:* --help"
+
+# Needed for our custom version of 'less'
+export MYVIMDIR="${HOME}/.vim/"
+

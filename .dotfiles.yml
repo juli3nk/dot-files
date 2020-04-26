@@ -1,0 +1,38 @@
+---
+common:
+  dirs:
+    - name: '.config'
+    - name: '.shell_custom.d'
+  ignore:
+    - '.git'
+    - '.gitignore'
+    - 'README.md'
+    - '.config'
+    - '.shell_custom.d'
+    - '.vim-plugged'
+
+templates:
+  template1:
+    ignore:
+      - '.wm'
+      - '.Xresources'
+
+profiles:
+  me:
+    links:
+      - '.config/mako'
+      - '.config/redshift'
+      - '.config/redshift.conf'
+      - '.config/sway'
+      - '.shell_custom.d/dockerfunc.sh'
+      - '.shell_custom.d/sshagent.sh'
+      - '.Xdefaults:.Xresources'
+      - 'bin/wifi-connect'
+  nox:
+    include:
+      - 'template1'
+  container:
+    include:
+      - 'template1'
+    links:
+      - '.vim-plugged:Dotfiles/.vim/plugged'

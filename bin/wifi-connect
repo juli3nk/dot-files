@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+SSID=$1
+
+nmcli --ask d wifi connect $SSID
+
+wifi=$(jq -r '. | .wifi.home' $HOME/.config/home/config.json)
+
+if [ $(nmcli c show --active | awk '/wireguard/ { print $1 }') == "protonvpn" -a $ssid != $wifi ]; then
+	nmcli c up protonvpn
+fi
