@@ -1,0 +1,35 @@
+# some more ls aliases
+alias ls='exa'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+alias xargs='xargs -I {}'
+
+alias awkvars="awk --dump-variables '' && cat awkvars.out && rm awkvars.out"
+
+# copy working directory
+alias cwd='pwd | tr -d "\r\n" | xclip -selection clipboard'
+
+# Pipe my public key to my clipboard.
+alias pubkey="cat ~/.ssh/id_rsa.pub | xclip -selection clipboard && echo '=> Public key copied to clipboard.'"
+
+# Pipe my private key to my clipboard.
+alias prikey="more ~/.ssh/id_rsa | xclip -selection clipboard && echo '=> Private key copied to clipboard.'"
+
+alias showmount='mount | column -t'
+
+alias wget='wget -c'
+
+# Stop after sending count ECHO_REQUEST packets #
+alias ping='ping -c 5'
+# Do not wait interval 1 second, go fast #
+alias fastping='ping -c 100 -s.2'
+
+alias ports='ss -tln'
+
+alias vihosts='sudo vim /etc/hosts'
+
+alias ipe='curl ipinfo.io/ip'
+
+alias faas='faas-cli'

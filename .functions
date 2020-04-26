@@ -1,0 +1,89 @@
+# display cert info
+certinfo() {
+	openssl x509 -in $1 -noout -text
+}
+
+# display CSR info
+csrinfo() {
+	openssl asn1parse -in $1
+}
+
+# Custom less function, uses vim so we get syntax highlighting
+cless() {
+	if [ $# -eq 0 ]; then
+		vim -c "so $MYVIMDIR/tools/less.vim" -
+	else
+		vim -c "so $MYVIMDIR/tools/less.vim" "$@"
+	fi
+}
+
+# Create a new directory and enter it
+md() {
+	mkdir -p "$@" && cd "$@"
+}
+
+# Extract archives - use: extract <file>
+# Credits to http://dotfiles.org/~pseup/.bashrc
+extract() {
+	if [ -f $1 ] ; then
+		case $1 in
+			*.tar.bz2) tar xjf $1 ;;
+			*.tar.gz) tar xzf $1 ;;
+			*.bz2) bunzip2 $1 ;;
+			*.rar) rar x $1 ;;
+			*.gz) gunzip $1 ;;
+			*.tar) tar xf $1 ;;
+			*.tbz2) tar xjf $1 ;;
+			*.tgz) tar xzf $1 ;;
+			*.zip) unzip $1 ;;
+			*.Z) uncompress $1 ;;
+			*.7z) 7z x $1 ;;
+			*) echo "'$1' cannot be extracted via extract()" ;;
+		esac
+	else
+		echo "'$1' is not a valid file"
+	fi
+}
+
+hist() {
+	case $1 in
+		on)
+			set -o history
+			;;
+		off)
+			set +o history
+			history -d $(history | tail -n 1 | awk '{ print $1 }')
+			;;
+		*)
+			echo "usage: hist on|off"
+			;;
+	esac
+}
+
+ipi() {
+	ip a show dev $1 | awk '/inet\s/ { print $2 }'
+}
+
+# rewrite git log author info
+git_log_rewrite_author() {
+	if [ -z "$1" -a -z "$2" -a -z "$3" ]; then
+		echo "usage: git_log_rewrite_author <name|email> <old_value> <new_value>"
+		return;
+	fi
+
+	if [ "$1" != "name" -o "$1" != "email" ]; then
+		echo "error: first parameter must be \'name\' or \'email\'"
+		return;
+	fi
+
+	git filter-branch --commit-filter '
+		if [ "$1" == "name" -a "$GIT_AUTHOR_NAME" == $2 ]; then
+			GIT_AUTHOR_NAME="$3";
+		elif [ "$1" == "email" -a "$GIT_AUTHOR_EMAIL" == $2 ]; then
+			GIT_AUTHOR_EMAIL=$3;
+
+			git commit-tree "$@";
+		else
+			git commit-tree "$@";
+		fi' HEAD
+}
