@@ -1,0 +1,6 @@
+
+workspace $ws1 output HDMI-1
+workspace $ws3 output HDMI-1
+workspace $ws5 output HDMI-1
+workspace $ws6 output HDMI-1
+workspace $ws10 output HDMI-1

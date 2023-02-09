@@ -1,0 +1,12 @@
+
+#
+# Exec
+#
+exec udiskie -F
+#exec --no-startup-id libinput-gestures
+
+# NetworkManager is the most popular way to manage wireless networks on Linux,
+# and nm-applet is a desktop environment-independent system tray GUI for it.
+exec --no-startup-id nm-applet
+exec --no-startup-id pasystray
+

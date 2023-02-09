@@ -2,6 +2,7 @@
 common:
   dirs:
     - name: '.config'
+    - name: '.local/bin'
     - name: '.shell_custom.d'
   ignore:
     - '.git'
@@ -23,11 +24,28 @@ profiles:
       - '.config/mako'
       - '.config/redshift'
       - '.config/redshift.conf'
-      - '.config/sway'
+      - '.config/sway/config:Dotfiles/.config/wm-common/config'
+      - '.config/sway/conf.d/exec:Dotfiles/.config/wm-common/conf.d/exec'
+      - '.config/sway/conf.d/fn-keys:Dotfiles/.config/wm-common/conf.d/fn-keys'
+      - '.config/sway/conf.d/profile-audio:Dotfiles/.config/wm-common/conf.d/profile-audio'
+      - '.config/sway/conf.d/profile-exit:Dotfiles/.config/wm-common/conf.d/profile-exit'
+      - '.config/sway/conf.d/status-bar:Dotfiles/.config/wm-common/conf.d/status-bar'
+      - '.config/sway/conf.d/windows:Dotfiles/.config/wm-common/conf.d/windows'
+      - '.config/sway/conf.d/cursor:Dotfiles/.config/sway/conf.d/cursor'
+      - '.config/sway/conf.d/exec-misc:Dotfiles/.config/sway/conf.d/exec-misc'
+      - '.config/sway/conf.d/idle-and-lockscreen:Dotfiles/.config/sway/conf.d/idle-and-lockscreen'
+      - '.config/sway/conf.d/inputs:Dotfiles/.config/sway/conf.d/inputs'
+      - '.config/sway/conf.d/launchers:Dotfiles/.config/sway/conf.d/launchers'
+      - '.config/sway/conf.d/outputs:Dotfiles/.config/sway/conf.d/outputs'
+      - '.config/sway/conf.d/reload-config:Dotfiles/.config/sway/conf.d/reload-config'
+      - '.config/sway/conf.d/terminal:Dotfiles/.config/sway/conf.d/terminal'
+      - '.config/sway/conf.d/windows-home:Dotfiles/.config/sway/conf.d/windows-home'
       - '.shell_custom.d/dockerfunc.sh'
+      - '.shell_custom.d/git.sh'
+      - '.shell_custom.d/k8s.sh'
       - '.shell_custom.d/sshagent.sh'
       - '.Xdefaults:.Xresources'
-      - 'bin/wifi-connect'
+      - '.local/bin/wifi-connect'
   nox:
     include:
       - 'template1'

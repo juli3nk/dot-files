@@ -1,0 +1,3 @@
+
+for_window [class="(?i)gcalctool"] floating enable
+for_window [class="(?i)openfortigui"] floating enable

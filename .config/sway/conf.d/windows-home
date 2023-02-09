@@ -1,0 +1,3 @@
+
+for_window [title="ProtonVPN Linux GUI"] floating enable
+for_window [title="Extension: (MetaMask) - MetaMask Notification"] floating enable

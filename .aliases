@@ -14,9 +14,6 @@ alias cwd='pwd | tr -d "\r\n" | xclip -selection clipboard'
 # Pipe my public key to my clipboard.
 alias pubkey="cat ~/.ssh/id_rsa.pub | xclip -selection clipboard && echo '=> Public key copied to clipboard.'"
 
-# Pipe my private key to my clipboard.
-alias prikey="more ~/.ssh/id_rsa | xclip -selection clipboard && echo '=> Private key copied to clipboard.'"
-
 alias showmount='mount | column -t'
 
 alias wget='wget -c'
@@ -31,5 +28,3 @@ alias ports='ss -tln'
 alias vihosts='sudo vim /etc/hosts'
 
 alias ipe='curl ipinfo.io/ip'
-
-alias faas='faas-cli'

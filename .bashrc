@@ -68,5 +68,3 @@ if [ -d ~/.shell_custom.d ]; then
 fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-complete -C /home/julien/bin/mc mc

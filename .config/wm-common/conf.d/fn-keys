@@ -1,0 +1,21 @@
+
+#
+# Special Keys
+#
+# audio controls
+bindsym XF86AudioMute exec $HOME/.wm/pa-vol.sh mute
+bindsym XF86AudioRaiseVolume exec $HOME/.wm/pa-vol.sh plus
+bindsym XF86AudioLowerVolume exec $HOME/.wm/pa-vol.sh minus
+bindsym XF86AudioMicMute exec $HOME/.wm/pa-vol.sh mictoggle
+
+# player controls
+bindsym --locked XF86AudioPlay exec $HOME/.wm/playerctl.sh play-pause
+bindsym XF86AudioNext exec $HOME/.wm/playerctl.sh next
+bindsym XF86AudioPrev exec $HOME/.wm/playerctl.sh prev
+
+# screen brightness controls
+bindsym XF86MonBrightnessUp exec sudo brightnessctl -q set +5%
+bindsym XF86MonBrightnessDown exec sudo brightnessctl -q set 5%-
+
+# screen resolution
+bindsym XF86Display exec xrandr --auto

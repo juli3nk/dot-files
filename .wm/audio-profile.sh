@@ -6,7 +6,7 @@ cd $HOME/.wm
 
 case "$1" in
     call)
-        if [ $(./playerctl.sh status | grep "playing" | wc -l) -eq 1 ]; then
+        if [ $(./playerctl.sh status | grep -c "playing") -eq 1 ]; then
             ./playerctl.sh play-pause
             ./pa-vol.sh set 50
             ./pa-vol.sh micunmute

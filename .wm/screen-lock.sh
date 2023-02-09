@@ -24,6 +24,23 @@ music-play() {
 	fi
 }
 
+wmlock() {
+	if [ $XDG_CURRENT_DESKTOP == "sway" ]; then
+		swaylock -f -c 000000
+	fi
+	if [ $XDG_CURRENT_DESKTOP == "i3" ]; then
+		i3lock -c 000000 -n
+	fi
+}
+wmmsg() {
+	if [ $XDG_CURRENT_DESKTOP == "sway" ]; then
+		swaymsg $@
+	fi
+	if [ $XDG_CURRENT_DESKTOP == "i3" ]; then
+		i3msg $@
+	fi
+}
+
 wifi=$(jq -r '. | .wifi.home' $HOME/.config/local-conf/config.json)
 
 if [ $(nmcli c show --active | awk '/wifi/ { print $1 }') == $wifi -a $wifi != "none" ]; then
@@ -38,15 +55,15 @@ case "$1" in
 	lock)
 		remove-music-state
 		music-pause
-		swaylock -f -c 000000
-	;;
+		wmlock
+		;;
 	lock-soft)
-		swaylock -f -c 000000
-	;;
+		wmlock
+		;;
 	off)
-		swaymsg "output * dpms off"
-	;;
+		wmmsg "output * dpms off"
+		;;
 	resume)
-		swaymsg "output * dpms on"
+		wmmsg "output * dpms on"
 		music-play
 esac

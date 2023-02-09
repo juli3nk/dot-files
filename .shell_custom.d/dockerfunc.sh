@@ -65,12 +65,6 @@ dockerlint() {
 		--rm \
 		hadolint/hadolint < "$@"
 }
-#doctl() {
-#        docker container run -ti \
-#		--rm \
-#		--env "DIGITALOCEAN_ACCESS_TOKEN=${DIGITALOCEAN_ACCESS_TOKEN}" \
-#		digitalocean/doctl "$@"
-#}
 gofmt() {
 	docker container run -t \
 		--rm \
@@ -89,6 +83,21 @@ htpasswd() {
 		--rm \
 		jessfraz/htpasswd "$@"
 }
+librewolf() {
+	docker container run \
+		-d \
+		--rm \
+		-e XDG_RUNTIME_DIR=/tmp \
+		-e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+		--mount type=bind,src=${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY},dst=/tmp/${WAYLAND_DISPLAY} \
+		--device /dev/snd \
+		-e PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native \
+		--mount type=bind,src=${XDG_RUNTIME_DIR}/pulse/native,dst=${XDG_RUNTIME_DIR}/pulse/native \
+		--mount type=bind,src=${HOME}/.config/pulse/cookie,dst=/home/user/.config/pulse/cookie \
+		--entrypoint librewolf \
+		--name librewolf \
+		juli3nk/librewolf
+}
 mpd() {
 	docker container run -d \
 		--rm \
@@ -103,12 +112,6 @@ mpd() {
 mpc() {
 	docker container exec -t mpd mpc "$@"
 }
-netcat() {
-	docker container run -ti \
-		--rm \
-		--net host \
-		jessfraz/netcat "$@"
-}
 nmap() {
 	docker container run -ti \
 		--rm \
@@ -122,29 +125,17 @@ packer() {
 		-w /tmp/project \
 		hashicorp/packer:light "$@"
 }
-postman() {
-	local docker_user="$(id -u):$(id -g)"
-	local homedir="/home/$(id -un)"
-
-	xhost +
-	docker container run -d \
-		--rm \
-		--mount type=bind,src=/etc/localtime,dst=/etc/localtime,ro \
-		--mount type=bind,src=/tmp/.X11-unix,dst=/tmp/.X11-unix \
-		-e "DISPLAY=unix${DISPLAY}" \
-		--user ${docker_user} \
-		--mount type=bind,src=/etc/passwd,dst=/etc/passwd,ro \
-		--mount type=bind,src=/etc/group,dst=/etc/group,ro \
-		--mount type=bind,src=${homedir},dst=${homedir} \
-		--net host \
-		--name postman \
-		juliengk/postman "$@"
-}
 shellcheck() {
 	docker container run -t \
 		--rm \
 		--mount type=bind,src=${PWD},dst=/mnt,ro \
 		koalaman/shellcheck "$@"
+}
+shfmt() {
+	docker container run -t \
+		--rm \
+		--mount type=bind,src=${PWD},dst=/mnt,ro \
+		juli3nk/shfmt "$@"
 }
 stepca() {
 	docker container run -d \
@@ -180,9 +171,3 @@ wireshark() {
 		--name wireshark \
 		jessfraz/wireshark
 }
-#yq() {
-#	docker container run -ti \
-#		--rm \
-#		--mount type=bind,src=${PWD},dst=/workdir \
-#		mikefarah/yq yq "$@"
-#}
