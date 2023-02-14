@@ -1,5 +1,0 @@
-
-#assign [name="^Courrier"] $ws4
-assign [class="^Teams$"] $ws5
-assign [class="(?i)spotify$"] $ws7
-assign [class="KeePassXC$"] $ws10

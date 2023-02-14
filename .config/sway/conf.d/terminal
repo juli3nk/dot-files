@@ -1,3 +1,4 @@
 
 # Your preferred terminal emulator
 set $term termite -e tmux
+bindsym $mod+Return exec $term

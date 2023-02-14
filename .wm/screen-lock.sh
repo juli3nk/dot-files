@@ -37,7 +37,7 @@ wmmsg() {
 		swaymsg $@
 	fi
 	if [ $XDG_CURRENT_DESKTOP == "i3" ]; then
-		i3msg $@
+		i3-msg $@
 	fi
 }
 

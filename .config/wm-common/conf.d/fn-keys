@@ -16,6 +16,3 @@ bindsym XF86AudioPrev exec $HOME/.wm/playerctl.sh prev
 # screen brightness controls
 bindsym XF86MonBrightnessUp exec sudo brightnessctl -q set +5%
 bindsym XF86MonBrightnessDown exec sudo brightnessctl -q set 5%-
-
-# screen resolution
-bindsym XF86Display exec xrandr --auto

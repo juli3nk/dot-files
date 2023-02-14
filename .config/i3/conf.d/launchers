@@ -7,4 +7,4 @@ bindsym $mod+d exec --no-startup-id dmenu_run
 # .desktop file. It is a wrapper around dmenu, so you need that installed.
 # bindcode $mod+40 exec --no-startup-id i3-dmenu-desktop
 
-bindsym $mod+Shift+f exec $HOME/.config/i3/i3_rofi_favorites.sh
+#bindsym $mod+Shift+f exec $HOME/.config/i3/i3_rofi_favorites.sh

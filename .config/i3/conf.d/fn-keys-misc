@@ -1,0 +1,3 @@
+
+# screen resolution
+bindsym XF86Display exec xrandr --auto

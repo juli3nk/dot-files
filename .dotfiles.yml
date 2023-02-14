@@ -2,6 +2,7 @@
 common:
   dirs:
     - name: '.config'
+    - name: '.local'
     - name: '.local/bin'
     - name: '.shell_custom.d'
   ignore:
@@ -20,32 +21,36 @@ templates:
 
 profiles:
   me:
+    dirs:
+      - name: '.config/sway'
+      - name: '.config/wm/conf.d'
     links:
       - '.config/mako'
       - '.config/redshift'
       - '.config/redshift.conf'
-      - '.config/sway/config:Dotfiles/.config/wm-common/config'
-      - '.config/sway/conf.d/exec:Dotfiles/.config/wm-common/conf.d/exec'
-      - '.config/sway/conf.d/fn-keys:Dotfiles/.config/wm-common/conf.d/fn-keys'
-      - '.config/sway/conf.d/profile-audio:Dotfiles/.config/wm-common/conf.d/profile-audio'
-      - '.config/sway/conf.d/profile-exit:Dotfiles/.config/wm-common/conf.d/profile-exit'
-      - '.config/sway/conf.d/status-bar:Dotfiles/.config/wm-common/conf.d/status-bar'
-      - '.config/sway/conf.d/windows:Dotfiles/.config/wm-common/conf.d/windows'
-      - '.config/sway/conf.d/cursor:Dotfiles/.config/sway/conf.d/cursor'
-      - '.config/sway/conf.d/exec-misc:Dotfiles/.config/sway/conf.d/exec-misc'
-      - '.config/sway/conf.d/idle-and-lockscreen:Dotfiles/.config/sway/conf.d/idle-and-lockscreen'
-      - '.config/sway/conf.d/inputs:Dotfiles/.config/sway/conf.d/inputs'
-      - '.config/sway/conf.d/launchers:Dotfiles/.config/sway/conf.d/launchers'
-      - '.config/sway/conf.d/outputs:Dotfiles/.config/sway/conf.d/outputs'
-      - '.config/sway/conf.d/reload-config:Dotfiles/.config/sway/conf.d/reload-config'
-      - '.config/sway/conf.d/terminal:Dotfiles/.config/sway/conf.d/terminal'
-      - '.config/sway/conf.d/windows-home:Dotfiles/.config/sway/conf.d/windows-home'
+      - '.config/wm-common/config:.config/sway/config'
+      - '.config/wm-common/conf.d/assigns:.config/wm/conf.d/assigns'
+#      - '.config/wm-common/conf.d/exec:.config/wm/conf.d/exec'
+      - '.config/wm-common/conf.d/fn-keys:.config/wm/conf.d/fn-keys'
+      - '.config/wm-common/conf.d/profile-audio:.config/wm/conf.d/profile-audio'
+      - '.config/wm-common/conf.d/profile-exit:.config/wm/conf.d/profile-exit'
+      - '.config/wm-common/conf.d/status-bar:.config/wm/conf.d/status-bar'
+      - '.config/wm-common/conf.d/windows:.config/wm/conf.d/windows'
+      - '.config/sway/conf.d/cursor:.config/wm/conf.d/cursor'
+      - '.config/sway/conf.d/exec-misc:.config/wm/conf.d/exec-misc'
+      - '.config/sway/conf.d/idle-and-lockscreen:.config/wm/conf.d/idle-and-lockscreen'
+      - '.config/sway/conf.d/inputs:.config/wm/conf.d/inputs'
+      - '.config/sway/conf.d/launchers:.config/wm/conf.d/launchers'
+      - '.config/sway/conf.d/outputs:.config/wm/conf.d/outputs'
+      - '.config/sway/conf.d/reload-config:.config/wm/conf.d/reload-config'
+      - '.config/sway/conf.d/terminal:.config/wm/conf.d/terminal'
+      - '.config/sway/conf.d/windows-home:.config/wm/conf.d/windows-home'
+      - '.local/bin/wifi-connect'
       - '.shell_custom.d/dockerfunc.sh'
       - '.shell_custom.d/git.sh'
       - '.shell_custom.d/k8s.sh'
       - '.shell_custom.d/sshagent.sh'
       - '.Xdefaults:.Xresources'
-      - '.local/bin/wifi-connect'
   nox:
     include:
       - 'template1'
@@ -54,3 +59,32 @@ profiles:
       - 'template1'
     links:
       - '.vim-plugged:Dotfiles/.vim/plugged'
+  work:
+    include:
+      - 'template1'
+    dirs:
+      - name: '.config/i3'
+      - name: '.config/wm/conf.d'
+    ignore:
+      - '.bash_logout'
+      - '.local'
+    links:
+      - '.config/wm-common/config:.config/i3/config'
+      - '.config/wm-common/conf.d/assigns:.config/wm/conf.d/assigns'
+#      - '.config/wm-common/conf.d/exec:.config/wm/conf.d/exec'
+      - '.config/wm-common/conf.d/fn-keys:.config/wm/conf.d/fn-keys'
+      - '.config/wm-common/conf.d/profile-audio:.config/wm/conf.d/profile-audio'
+      - '.config/wm-common/conf.d/profile-exit:.config/wm/conf.d/profile-exit'
+      - '.config/wm-common/conf.d/status-bar:.config/wm/conf.d/status-bar'
+      - '.config/wm-common/conf.d/windows:.config/wm/conf.d/windows'
+      - '.config/i3/conf.d/displays:.config/wm/conf.d/displays'
+      - '.config/i3/conf.d/exec-misc:.config/wm/conf.d/exec-misc'
+      - '.config/i3/conf.d/fn-keys-misc:.config/wm/conf.d/fn-keys-misc'
+      - '.config/i3/conf.d/fonts:.config/wm/conf.d/fonts'
+      - '.config/i3/conf.d/idle-and-lockscreen:.config/wm/conf.d/idle-and-lockscreen'
+      - '.config/i3/conf.d/launchers:.config/wm/conf.d/launchers'
+      - '.config/i3/conf.d/reload-config:.config/wm/conf.d/reload-config'
+      - '.config/i3/conf.d/terminal:.config/wm/conf.d/terminal'
+      - '.config/i3/conf.d/work:.config/wm/conf.d/work'
+      - '.shell_custom.d/git.sh'
+      - '.shell_custom.d/k8s.sh'
