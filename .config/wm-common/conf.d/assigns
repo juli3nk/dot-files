@@ -1,2 +1,2 @@
 
-assign [class="KeePassXC$"] $workspace10
+assign [class="KeePassXC$"] workspace $workspace10

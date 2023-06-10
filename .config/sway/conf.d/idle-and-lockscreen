@@ -1,6 +1,5 @@
 
-bindsym Alt+l exec swaylock --hide-keyboard-layout -i $lock_bg
-#    bindsym $mod+Shift+l exec swaylock -f -c 000000
+bindsym $mod+Alt+l exec "$HOME/.wm/screen-lock.sh lock"
 
 ### Idle configuration
 #
@@ -8,9 +7,8 @@ bindsym Alt+l exec swaylock --hide-keyboard-layout -i $lock_bg
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
 exec swayidle -w \
-    timeout 60 "$HOME/.wm/screen-lock.sh lock-soft" \
-    timeout 300 "$HOME/.wm/screen-lock.sh lock" \
+    timeout 60 "$HOME/.wm/screen-lock.sh lock-soft idle" \
+    timeout 300 "$HOME/.wm/screen-lock.sh lock idle" \
     timeout 600 "$HOME/.wm/screen-lock.sh off" \
-    resume "$HOME/.wm/screen-lock.sh resume" \
-    before-sleep "$HOME/.wm/screen-lock.sh lock"
-
+    before-sleep "$HOME/.wm/screen-lock.sh lock" \
+    after-resume "$HOME/.wm/screen-lock.sh resume"

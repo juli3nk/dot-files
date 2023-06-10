@@ -1,5 +1,7 @@
 
 for_window [class="(?i)pavucontrol"] floating enable
+for_window [title="Volume Control"] floating enable
 for_window [class="(?i)vlc"] floating enable
 for_window [title="KeePassXC-Browser Confirm Access"] floating enable
 for_window [title="KeePassXC - Browser Access Request"] floating enable
+for_window [title="Bluetooth Devices"] floating enable

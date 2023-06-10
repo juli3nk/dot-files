@@ -171,3 +171,10 @@ wireshark() {
 		--name wireshark \
 		jessfraz/wireshark
 }
+wrangler() {
+	docker container run -ti \
+		--rm \
+		--mount type=bind,src=${PWD},dst=/home/user/worker \
+		--name wrangler \
+		juli3nk/wrangler
+}

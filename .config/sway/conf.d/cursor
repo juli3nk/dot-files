@@ -2,4 +2,6 @@
 #
 # Cursor
 #
-#seat seat0 xcursor_theme my_cursor_theme 48
+# themes: default, Adwaita or Simple-and-Soft
+
+seat seat0 xcursor_theme default 24

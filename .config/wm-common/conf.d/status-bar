@@ -8,11 +8,13 @@ bar {
     # When the status_command prints a new line to stdout, swaybar updates.
     # The default just shows the current date and time.
     #status_command i3status --config ~/.i3status.conf
-    status_command $HOME/bin/mybar
+    status_command $HOME/.local/bin/mybar
 
     colors {
         statusline #ffffff
         background #323232
+
+        focused_workspace #008080 #008080 #ffffff
         inactive_workspace #32323200 #32323200 #5c5c5c
     }
 }

@@ -3,61 +3,71 @@
 MUSIC_STATE="/tmp/music-state"
 
 create-music-state() {
-	touch $MUSIC_STATE
+	touch "$MUSIC_STATE"
 }
 
 remove-music-state() {
-	rm -f $MUSIC_STATE
+	rm -f "$MUSIC_STATE"
 }
 
 music-pause() {
-	if [ $(./playerctl.sh status | grep "playing" | wc -l) -eq 1 ]; then
+	if [ $(${HOME}/.wm/playerctl.sh status | grep -ic "playing") -eq 1 ]; then
 		create-music-state
-		./playerctl.sh play-pause
+		${HOME}/.wm/playerctl.sh play-pause
 	fi
 }
 
 music-play() {
 	if [ -f "$MUSIC_STATE" ]; then
 		remove-music-state
-		./playerctl.sh play-pause
+		${HOME}/.wm/playerctl.sh play-pause
 	fi
 }
 
 wmlock() {
-	if [ $XDG_CURRENT_DESKTOP == "sway" ]; then
+	if [ "$XDG_SESSION_DESKTOP" == "sway" -o "$XDG_CURRENT_DESKTOP" == "sway" ]; then
 		swaylock -f -c 000000
 	fi
-	if [ $XDG_CURRENT_DESKTOP == "i3" ]; then
+	if [ "$XDG_SESSION_DESKTOP" == "i3" -o "$XDG_CURRENT_DESKTOP" == "i3" ]; then
 		i3lock -c 000000 -n
 	fi
 }
 wmmsg() {
-	if [ $XDG_CURRENT_DESKTOP == "sway" ]; then
+	if [ "$XDG_SESSION_DESKTOP" == "sway" -o "$XDG_CURRENT_DESKTOP" == "sway" ]; then
 		swaymsg $@
 	fi
-	if [ $XDG_CURRENT_DESKTOP == "i3" ]; then
+	if [ "$XDG_SESSION_DESKTOP" == "i3" -o "$XDG_CURRENT_DESKTOP" == "i3" ]; then
 		i3-msg $@
 	fi
 }
 
-wifi=$(jq -r '. | .wifi.home' $HOME/.config/local-conf/config.json)
+same_wifi() {
+	if [ "$1" != "idle" ]; then
+		return
+	fi
 
-if [ $(nmcli c show --active | awk '/wifi/ { print $1 }') == $wifi -a $wifi != "none" ]; then
-	exit
-fi
+	wifi_home=$(jq -r '.wifi.home' ${HOME}/.config/local/net.json)
+	wifi_current=$(nmcli c show --active | awk '/wifi/ { print $1 }')
 
-if [ $(playerctl status) == "Playing" ]; then
-	exit
-fi
+	if [ "$wifi_home" != "none" -a "$wifi_current" == "$wifi_home" ]; then
+		exit
+	fi
+}
+
+lock_type="${2:-regular}"
 
 case "$1" in
 	lock)
+		same_wifi "$lock_type"
+
 		remove-music-state
 		music-pause
+
 		wmlock
 		;;
 	lock-soft)
+		same_wifi "$lock_type"
+
 		wmlock
 		;;
 	off)
@@ -65,5 +75,4 @@ case "$1" in
 		;;
 	resume)
 		wmmsg "output * dpms on"
-		music-play
 esac

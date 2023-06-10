@@ -1,4 +1,6 @@
 
+alias k='kubectl'
+
 alias kcgs='kubectl get service -o wide'
 alias kcgd='kubectl get deployment -o wide'
 alias kcgp='kubectl get pod -o wide'

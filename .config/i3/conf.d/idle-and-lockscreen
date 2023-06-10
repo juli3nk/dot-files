@@ -1,2 +1,2 @@
 
-bindsym $mod+Alt+l exec i3lock -c 000000 -n
+bindsym $mod+Alt+l exec "$HOME/.wm/screen-lock.sh lock"

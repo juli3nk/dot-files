@@ -9,7 +9,7 @@ csrinfo() {
 }
 
 certconnectinfo() {
-	openssl s_client -connect $1 -showcerts < /dev/null 2>&1 | openssl x509 -noout -startdate -enddate
+	openssl s_client -connect $1 -showcerts < /dev/null 2>&1 | openssl x509 "${@:2}"
 }
 
 # Custom less function, uses vim so we get syntax highlighting

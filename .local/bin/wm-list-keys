@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+TMP_FILE="/tmp/wm-list-keys"
+
+grep "bindsym \$mod" "${HOME}/.config/sway/config" > "$TMP_FILE"
+grep "bindsym \$mod" "${HOME}/.config/wm/conf.d/*" | awk -F':' '{ print $2, "(" $1 ")" }' >> "$TMP_FILE"
+
+grep -Ev "workspace" "$TMP_FILE" | sed -e 's/bindsym //' | sort

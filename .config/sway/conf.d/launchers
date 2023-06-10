@@ -2,8 +2,11 @@
 # Your preferred application launcher
 # Note: it's recommended that you pass the final command to sway
 set $menu dmenu_path | dmenu | xargs swaymsg exec
+#set $menu albert show
 
 # start your launcher
 bindsym $mod+d exec $menu
 
-bindsym $mod+Shift+f exec $HOME/.wm/favorites_rofi.sh
+#bindsym $mod+Shift+f exec $HOME/.wm/favorites_rofi.sh
+
+#exec albert

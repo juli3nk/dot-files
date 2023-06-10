@@ -66,5 +66,3 @@ if [ -d ~/.shell_custom.d ]; then
 
 	unset i
 fi
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash

@@ -7,7 +7,7 @@ mpc() {
 select_player() {
 	local PLAYER_CMD="playerctl"
 
-	if [ $(mpc status | grep -i "playing" | wc -l) -eq 1 ]; then
+	if [ $(mpc status | grep -ic "playing") -eq 1 ]; then
 		PLAYER_CMD="mpc"
 	fi
 
@@ -44,7 +44,7 @@ player() {
 		playerctl)
 			case "$1" in
 				status)
-					if [ $(playerctl status | grep "playing" | wc -l) -eq 1 ]; then
+					if [ $(playerctl status | grep -ic "playing") -eq 1 ]; then
 						echo "playing"
 					else
 						echo "paused"
