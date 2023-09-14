@@ -1,56 +1,92 @@
 #!/usr/bin/env bash
 
-LOCAL_BIN_PATH="${HOME}/.local/bin"
+CURRENT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-get_latest_tag() {
-    local repo_url="$1"
+. "${CURRENT_DIR}/utils.sh"
 
-	git ls-remote --tags ${REPO_URL}.git | grep -v "{}" | awk -F'/' '{ print $3 }' | sort -V | tail -n 1 | sed 's/^v//'
-}
+# asdf
+ASDF_DIR_PATH="${HOME}/.asdf"
+ASDF_REPO_URL="github.com/asdf-vm/asdf"
 
+ASDF_VERSION="$(get_latest_tag "$ASDF_REPO_URL")"
 
-mkdir -p "$LOCAL_BIN_PATH"
+if [ ! -d "$ASDF_DIR_PATH" ]; then
+  git clone "https://${ASDF_REPO_URL}.git" "$ASDF_DIR_PATH" --branch "$ASDF_VERSION"
+fi
 
-# Bin
-BIN_URL="github.com/marcosnils/bin"
-BIN_LATEST_VERSION=$(get_latest_tag "$BIN_URL")
+. "${HOME}/.asdf/asdf.sh"
 
-curl -sSL ${BIN_URL}/releases/download/v${BIN_LATEST_VERSION}/bin_${BIN_LATEST_VERSION}_Linux_x86_64 -o ${LOCAL_BIN_PATH}/bin
-chmod +x ${LOCAL_BIN_PATH}/bin
+# Install apps using asdf
+declare -a apps=(
+  "age"
+  "bat;https://github.com/juli3nk/asdf-bat.git"
+  "cosign"
+  "ctop"
+  "dagger"
+  "dotfiles;https://github.com/juli3nk/asdf-dotfiles.git"
+  "eza;https://github.com/juli3nk/asdf-eza.git"
+  "github-cli"
+  "helm"
+  "kind"
+  "krew"
+  "kubectl"
+  "kubent"
+  "neovim;https://github.com/juli3nk/asdf-neovim.git"
+  "nerdctl"
+  "pluto"
+  "ripgrep"
+  "sops"
+  "step"
+  "trivy"
+  "yq"
+  "zoxide"
+)
 
-for bin in $(cat $LOCAL_BIN_PATH/.bin.repos); do
-    bin install "$bin"
+for app in "${apps[@]}"; do
+  app_name="$(echo "$app" | awk -F';' '{ print $1 }')"
+  app_url="$(echo "$app" | awk -F';' '{ print $2 }')"
+
+  asdf plugin add "$app_name" "$app_url"
+  asdf install "$app_name" latest
+  asdf global "$app_name" latest
 done
 
 # FZF
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-
-# Zoxide
-curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
-
-# Kubectl
-curl -sfL "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o /tmp/kubectl
-
-CS=$(curl -sfL "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256")
-echo "${CS}  /tmp/kubectl" | sha256sum --check > /dev/null
-
-if [ "$?" -eq 0 ]; then
-	mv /tmp/kubectl $LOCAL_BIN_PATH
-	chmod +x $LOCAL_BIN_PATH/kubectl
-else
-	echo -e "checksum error"
+if [ ! -d "${HOME}/.fzf" ]; then
+  git clone --depth 1 https://github.com/junegunn/fzf.git "${HOME}/.fzf"
+  "${HOME}/.fzf/install"
 fi
-
-# Helm
-HELM_LATEST_VERSION=$(get_latest_tag "github.com/helm/helm")
-
-curl -sSL https://get.helm.sh/helm-v${HELM_LATEST_VERSION}-linux-amd64.tar.gz | tar -xzC /tmp
-mv /tmp/linux-amd64/helm $LOCAL_BIN_PATH/helm
-rm -rf /tmp/linux-amd64
 
 # Skopeo
 #git clone http://github.com/containers/skopeo.git /tmp/skopeo
 #pushd /tmp/skopeo
 #make binary
 #popd
+
+# Kubectl plugins
+declare -a kubectl_plugins=(
+  "neat"
+  "stern"
+  "outdated"
+  "view-cert"
+  "view-secret"
+)
+
+for plugin in "${kubectl_plugins[@]}"; do
+  kubectl krew install "$plugin"
+done
+
+# Helm plugins
+declare -a helm_plugins=(
+  "https://github.com/databus23/helm-diff"
+  "https://github.com/jkroepke/helm-secrets"
+)
+
+for plugin in "${helm_plugins[@]}"; do
+  helm plugin install "$plugin"
+done
+
+# mybar
+mybar_repo_url="github.com/juli3nk/mybar-barista"
+
+mybar_version_latest="$(get_latest_tag "$mybar_repo_url")"

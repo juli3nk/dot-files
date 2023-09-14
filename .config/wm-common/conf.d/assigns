@@ -1,2 +1,4 @@
 
+assign [class="Alacritty"] workspace $workspace1
+assign [class="Code"] workspace $workspace2
 assign [class="KeePassXC$"] workspace $workspace10

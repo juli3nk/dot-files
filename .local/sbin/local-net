@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+DNS_IP="1.1.1.1"
+DOCKER_API_VERSION="1.41"
+
+DATA_DIR="${HOME}/Data/adguardhome"
+CONFIG_FILE_PATH="${HOME}/.config/local/net.json"
+
+
+# Start local-net
+if [ ! -f "$CONFIG_FILE_PATH" ]; then
+  echo "config file does not exist"
+  exit 1
+fi
+
+mkdir -p ${DATA_DIR}/{work,conf}
+
+if [ "$(docker container ls | grep -c local-net)" -eq 0 ]; then
+  docker container run \
+    -d \
+    --rm \
+    --mount type=bind,src=/var/run/dbus,dst=/var/run/dbus \
+    --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+    --mount type=bind,src=${CONFIG_FILE_PATH},dst=/tmp/local-net.json \
+    --mount type=bind,src=${DATA_DIR}/work,dst=/opt/adguardhome/work \
+    --mount type=bind,src=${DATA_DIR}/conf,dst=/opt/adguardhome/conf \
+    --net host \
+    --dns "$DNS_IP" \
+    --security-opt seccomp=unconfined \
+    --security-opt apparmor=unconfined \
+    --cap-add=NET_ADMIN \
+    --env DOCKER_API_VERSION=$DOCKER_API_VERSION \
+    --name local-net \
+    juli3nk/local-net \
+      -debug
+fi
+
+if [ "$(grep -c "ID=nixos" /etc/os-release)" -eq 1 ]; then
+  exit
+fi
+
+# Configure resolv.conf
+LOCAL_IP_DNS="$(jq -r '.ip_addresses.dns.ip_address' "$CONFIG_FILE_PATH")"
+
+if ! grep "$LOCAL_IP_DNS" /etc/systemd/resolved.conf > /dev/null ; then
+  sudo sed -i -e 's/#DNSStubListener=yes/DNSStubListener=no/' -e "s/#DNS=/DNS=${LOCAL_IP_DNS}/" /etc/systemd/resolved.conf
+
+  sudo systemctl restart systemd-resolved
+fi

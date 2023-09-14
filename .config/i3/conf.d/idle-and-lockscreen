@@ -1,2 +1,6 @@
 
-bindsym $mod+Alt+l exec "$HOME/.wm/screen-lock.sh lock"
+bindsym $mod+Shift+p exec "$HOME/.wm/screen-lock.sh lock"
+
+# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
+# screen before suspend. Use loginctl lock-session to lock your screen.
+exec --no-startup-id xss-lock --transfer-sleep-lock -- "$HOME/.wm/screen-lock.sh lock"

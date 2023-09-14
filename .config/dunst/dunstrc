@@ -179,28 +179,46 @@ history = ctrl+grave
 # Context menu.
 context = ctrl+shift+period
 
-[urgency_low]
+#[urgency_low]
 # IMPORTANT: colors have to be defined in quotation marks.
 # Otherwise the "#" and following would be interpreted as a comment.
-frame_color = "#3B7C87"
-foreground = "#3B7C87"
-background = "#191311"
-#background = "#2B313C"
+#frame_color = "#3B7C87"
+#foreground = "#3B7C87"
+#background = "#191311"
+##background = "#2B313C"
+#timeout = 4
+
+#[urgency_normal]
+#frame_color = "#5B8234"
+#foreground = "#5B8234"
+#background = "#191311"
+##background = "#2B313C"
+#timeout = 6
+
+#[urgency_critical]
+#frame_color = "#B7472A"
+#foreground = "#B7472A"
+#background = "#191311"
+##background = "#2B313C"
+#timeout = 8
+
+# Catppuccin Mocha
+[urgency_low]
+background = "#1E1E2E"
+foreground = "#CDD6F4"
 timeout = 4
 
 [urgency_normal]
-frame_color = "#5B8234"
-foreground = "#5B8234"
-background = "#191311"
-#background = "#2B313C"
+background = "#1E1E2E"
+foreground = "#CDD6F4"
 timeout = 6
 
 [urgency_critical]
-frame_color = "#B7472A"
-foreground = "#B7472A"
-background = "#191311"
-#background = "#2B313C"
+background = "#1E1E2E"
+foreground = "#CDD6F4"
+frame_color = "#FAB387"
 timeout = 8
+
 
 
 # Every section that isn't one of the above is interpreted as a rules to
@@ -259,5 +277,9 @@ timeout = 8
     # This notification will not be displayed
     body = "You are now connected to *veth*"
     format = ""
-#
+
+[global]
+frame_color = "#89B4FA"
+separator_color= frame
+
 # vim: ft=cfg

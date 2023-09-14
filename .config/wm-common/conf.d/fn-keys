@@ -3,10 +3,10 @@
 # Special Keys
 #
 # audio controls
-bindsym XF86AudioMute exec $HOME/.wm/pa-vol.sh mute
-bindsym XF86AudioRaiseVolume exec $HOME/.wm/pa-vol.sh plus
-bindsym XF86AudioLowerVolume exec $HOME/.wm/pa-vol.sh minus
-bindsym XF86AudioMicMute exec $HOME/.wm/pa-vol.sh mictoggle
+bindsym XF86AudioMute exec $HOME/.wm/audio-vol.sh toggle
+bindsym XF86AudioRaiseVolume exec $HOME/.wm/audio-vol.sh plus
+bindsym XF86AudioLowerVolume exec $HOME/.wm/audio-vol.sh minus
+bindsym XF86AudioMicMute exec $HOME/.wm/audio-vol.sh mictoggle
 
 # player controls
 bindsym --locked XF86AudioPlay exec $HOME/.wm/playerctl.sh play-pause

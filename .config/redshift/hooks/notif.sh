@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-case $1 in
+case "$1" in
     period-changed)
-        exec notify-send "Redshift" "Period changed to $3"
+        exec notify-send "Redshift" "Period changed to ${3}"
 	;;
 esac
