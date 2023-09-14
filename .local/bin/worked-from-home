@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+IFS=$'\n' ; for entry in $(sudo journalctl -o short-full -u NetworkManager | awk '/\(wifi\) .+ Connected/ { print $1, $2, $3, $4, "==>", $NF }' | sed 's/"//g' | sort -k2,2 -k3,3 | grep -E "^.{3} ${1}"); do
+  weekday="$(echo "$entry" | awk '{ print $1 }')"
+  hour="$(echo "$entry" | awk '{ print $3 }' | awk -F':' '{ print $1 }' | sed 's/^0//')"
+
+  if [ "$weekday" == "Sat" -o "$weekday" == "Sun" ]; then
+    continue
+  fi
+  if [ "$hour" -lt 6 -o "$hour" -gt 18 ]; then
+    continue
+  fi
+
+  echo "$entry"
+done

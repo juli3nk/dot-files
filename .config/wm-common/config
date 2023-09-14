@@ -1,6 +1,17 @@
 ### Variables
 #
-include ~/.config/wm/vars
+#include ~/.config/wm/vars
+
+set $mw1 ampersand
+set $mw2 eacute
+set $mw3 quotedbl
+set $mw4 apostrophe
+set $mw5 parenleft
+set $mw6 minus
+set $mw7 egrave
+set $mw8 underscore
+set $mw9 ccedilla
+set $mw10 agrave
 
 # Logo key. Use Mod1 for Alt.
 set $mod Mod4
@@ -13,10 +24,10 @@ set $right l
 
 set $workspace1 "1 "
 set $workspace2 "2 " 
-set $workspace3 "3 "
+set $workspace3 "3"
 set $workspace4 "4 "
 set $workspace5 "5 "
-set $workspace6 "6"
+set $workspace6 "6 "
 set $workspace7 "7"
 set $workspace8 "8"
 set $workspace9 "9"
@@ -87,6 +98,8 @@ bindsym $mod+Shift+$mw7 move container to workspace $workspace7
 bindsym $mod+Shift+$mw8 move container to workspace $workspace8
 bindsym $mod+Shift+$mw9 move container to workspace $workspace9
 bindsym $mod+Shift+$mw10 move container to workspace $workspace10
+
+bindsym $mod+Shift+s move workspace to output left
 
 #
 # Layout stuff:

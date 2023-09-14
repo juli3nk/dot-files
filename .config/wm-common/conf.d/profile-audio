@@ -4,10 +4,10 @@
 #
 set $mode_audio_profile Profile: (c) call
 mode "$mode_audio_profile" {
-    bindsym c exec --no-startup-id $HOME/.wm/audio-profile.sh call, mode "default"
+  bindsym c exec --no-startup-id $HOME/.wm/audio-profile.sh call, mode "default"
 
-    # back to normal: Enter or Escape
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+  # back to normal: Enter or Escape
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
 }
 bindsym $mod+Shift+a mode "$mode_audio_profile"

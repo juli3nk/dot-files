@@ -2,28 +2,36 @@
 common:
   dirs:
     - name: '.config'
+    - name: '.config/git'
     - name: '.local/bin'
+    - name: '.local/env'
+    - name: '.local/lib'
     - name: '.shell_custom.d'
   ignore:
+    - '.config'
+    - '.editorconfig'
     - '.git'
     - '.gitignore'
-    - 'README.md'
-    - '.config'
     - '.local'
     - '.shell_custom.d'
+    - '.tmux'
     - '.vim-plugged'
-    - 'fonts-setup.sh'
+    - '.Xresources'
+    - 'docs'
+    - 'README.md'
+    - 'scripts'
 
 templates:
-  wm:
+  nox:
+    ignore:
+      - '.wm'
+  wm-common:
     dirs:
       - name: '.config/wm/conf.d'
+      - name: '.local/sbin'
+      - name: '.kube/contexts'
       - name: '.wm'
-      - name: '.kube'
-      - name: '.kubeconfig.d'
     links:
-#      - '.config/redshift'
-#      - '.config/redshift.conf'
       - '.config/wm-common/conf.d/assigns:.config/wm/conf.d/assigns'
       - '.config/wm-common/conf.d/theme:.config/wm/conf.d/theme'
       - '.config/wm-common/conf.d/exec:.config/wm/conf.d/exec'
@@ -34,12 +42,18 @@ templates:
       - '.config/wm-common/conf.d/status-bar:.config/wm/conf.d/status-bar'
       - '.config/wm-common/conf.d/terminal:.config/wm/conf.d/terminal'
       - '.config/wm-common/conf.d/windows:.config/wm/conf.d/windows'
+      - '.local/bin/local-profile'
+      - '.local/bin/update-kubeconfig'
       - '.local/bin/wifi-connect'
+      - '.local/lib/sound.sh'
+      - '.local/sbin/local-net'
       - '.shell_custom.d/dockerfunc.sh'
       - '.shell_custom.d/git.sh'
       - '.shell_custom.d/k8s.sh'
       - '.shell_custom.d/sshagent.sh'
-  sway:
+      - '.config/Code/User/settings.json'
+      - '.config/alacritty'
+  wm-sway:
     dirs:
       - name: '.config/sway'
     links:
@@ -50,8 +64,7 @@ templates:
       - '.config/sway/conf.d/idle-and-lockscreen:.config/wm/conf.d/idle-and-lockscreen'
       - '.config/sway/conf.d/launchers:.config/wm/conf.d/launchers'
       - '.config/sway/conf.d/screenshots:.config/wm/conf.d/screenshots'
-#      - '.Xdefaults:.Xresources'
-  i3:
+  wm-i3:
     dirs:
       - name: '.config/i3'
     links:
@@ -61,9 +74,6 @@ templates:
       - '.config/i3/conf.d/idle-and-lockscreen:.config/wm/conf.d/idle-and-lockscreen'
       - '.config/i3/conf.d/launchers:.config/wm/conf.d/launchers'
       - '.config/i3/conf.d/restart:.config/wm/conf.d/restart'
-  nox:
-    ignore:
-      - '.wm'
       - '.Xresources'
   perso:
     links:
@@ -73,13 +83,16 @@ templates:
   work:
     links:
       - '.config/wm-custom/work:.config/wm/conf.d/work'
-      - '.config/wm-custom/work-inputs:.config/wm/conf.d/inputs'
+      - '.config/wm-custom/work-screens:.config/wm/conf.d/screens'
       - '.config/wm-custom/work-vars:.config/wm/vars'
+      - '.local/bin/worked-from-home'
+  work-sway:
+    links:
+      - '.config/wm-custom/work-inputs-sway:.config/wm/conf.d/inputs'
+#  work-i3:
+#    links:
 
 profiles:
-  nox:
-    include:
-      - 'nox'
   container:
     include:
       - 'nox'
@@ -87,16 +100,11 @@ profiles:
       - '.vim-plugged:Dotfiles/.vim/plugged'
   me:
     include:
-      - 'wm'
-      - 'sway'
+      - 'wm-common'
+      - 'wm-sway'
       - 'perso'
   work:
     include:
-      - 'wm'
-      - 'sway'
-      - 'work'
-  work-i3:
-    include:
-      - 'wm'
-      - 'i3'
+      - 'wm-common'
+      - 'wm-i3'
       - 'work'

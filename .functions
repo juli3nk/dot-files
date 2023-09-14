@@ -1,73 +1,79 @@
-# display cert info
-certinfo() {
-	openssl x509 -in $1 -noout -text
-}
-
-# display CSR info
-csrinfo() {
-	openssl asn1parse -in $1
-}
-
-certconnectinfo() {
-	openssl s_client -connect $1 -showcerts < /dev/null 2>&1 | openssl x509 "${@:2}"
-}
-
 # Custom less function, uses vim so we get syntax highlighting
 cless() {
-	if [ $# -eq 0 ]; then
-		vim -c "so $MYVIMDIR/tools/less.vim" -
-	else
-		vim -c "so $MYVIMDIR/tools/less.vim" "$@"
-	fi
+  if [ $# -eq 0 ]; then
+    vim -c "so $MYVIMDIR/tools/less.vim" -
+  else
+    vim -c "so $MYVIMDIR/tools/less.vim" "$@"
+  fi
 }
 
 # Create a new directory and enter it
-md() {
-	mkdir -p "$@" && cd "$@"
+mcd() {
+  mkdir -p "$@" && cd "$@"
 }
 
 # Extract archives - use: extract <file>
 # Credits to http://dotfiles.org/~pseup/.bashrc
 extract() {
-	if [ -f $1 ] ; then
-		case $1 in
-			*.tar.bz2) tar xjf $1 ;;
-			*.tar.gz) tar xzf $1 ;;
-			*.bz2) bunzip2 $1 ;;
-			*.rar) rar x $1 ;;
-			*.gz) gunzip $1 ;;
-			*.tar) tar xf $1 ;;
-			*.tbz2) tar xjf $1 ;;
-			*.tgz) tar xzf $1 ;;
-			*.zip) unzip $1 ;;
-			*.Z) uncompress $1 ;;
-			*.7z) 7z x $1 ;;
-			*) echo "'$1' cannot be extracted via extract()" ;;
-		esac
-	else
-		echo "'$1' is not a valid file"
-	fi
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2) tar xjf $1 ;;
+      *.tar.gz) tar xzf $1 ;;
+      *.bz2) bunzip2 $1 ;;
+      *.rar) rar x $1 ;;
+      *.gz) gunzip $1 ;;
+      *.tar) tar xf $1 ;;
+      *.tbz2) tar xjf $1 ;;
+      *.tgz) tar xzf $1 ;;
+      *.zip) unzip $1 ;;
+      *.Z) uncompress $1 ;;
+      *.7z) 7z x $1 ;;
+      *) echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
 }
 
 hist() {
-	case $1 in
-		on)
-			set -o history
-			;;
-		off)
-			set +o history
-			history -d $(history | tail -n 1 | awk '{ print $1 }')
-			;;
-		*)
-			echo "usage: hist on|off"
-			;;
-	esac
+  case $1 in
+    on)
+      set -o history
+      ;;
+    off)
+      set +o history
+      history -d $(history | tail -n 1 | awk '{ print $1 }')
+      ;;
+    *)
+      echo "usage: hist on|off"
+      ;;
+  esac
 }
 
 ipi() {
-	ip a show dev $1 | awk '/inet\s/ { print $2 }'
+  ip a show dev $1 | awk '/inet\s/ { print $2 }'
 }
 
 ssh-kh-remove() {
-	ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$1"
+  ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$1"
+}
+
+generate_random_secret() {
+  local char_len="${1:-32}"
+
+  pwgen -sy1 "$char_len"
+}
+
+# display cert info
+certinfo() {
+  openssl x509 -in $1 -noout -text
+}
+
+# display CSR info
+csrinfo() {
+  openssl asn1parse -in $1
+}
+
+certconnectinfo() {
+  openssl s_client -connect $1 -showcerts < /dev/null 2>&1 | openssl x509 "${@:2}"
 }

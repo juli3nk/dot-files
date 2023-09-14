@@ -1,8 +1,10 @@
 # some more ls aliases
-alias ls='exa'
+alias ls='eza'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+
+alias cat='bat --theme="Catppuccin-mocha"'
 
 alias vim='nvim'
 
@@ -29,4 +31,9 @@ alias ports='ss -tln'
 
 alias vihosts='sudo vim /etc/hosts'
 
-alias ipe='curl ipinfo.io/ip'
+alias myip='curl -sf http://checkip.dyndns.org | sed -n "s/^.*Address:\s\(.*\)<\/body>.*$/\1/p"'
+alias myip6='curl -sf http://checkipv6.dyndns.org | sed -n "s/^.*Address:\s\(.*\)<\/body>.*$/\1/p"'
+
+alias diskusage='sudo du -ak --max-depth=1 2> /dev/null | sort -n'
+
+alias sync-time='sudo chronyc makestep'

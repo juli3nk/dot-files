@@ -4,13 +4,13 @@
 #
 set $mode_system System: (l) logout, (p) power off (r) reboot, (s) suspend
 mode "$mode_system" {
-    bindsym l exec --no-startup-id ~/.wm/logout.sh, mode "default"
-    bindsym p exec --no-startup-id systemctl poweroff, mode "default"
-    bindsym r exec --no-startup-id systemctl reboot, mode "default"
-    bindsym s exec --no-startup-id systemctl suspend, mode "default"
+  bindsym l exec --no-startup-id ~/.wm/logout.sh, mode "default"
+  bindsym p exec --no-startup-id systemctl poweroff, mode "default"
+  bindsym r exec --no-startup-id systemctl reboot, mode "default"
+  bindsym s exec --no-startup-id ~/.wm/suspend-hibernate.sh, mode "default"
 
-    # back to normal: Enter or Escape
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+  # back to normal: Enter or Escape
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
 }
 bindsym $mod+Shift+e mode "$mode_system"

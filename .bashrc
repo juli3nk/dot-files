@@ -4,13 +4,13 @@
 
 # If not running interactively, don't do anything
 case $- in
-	*i*) ;;
-	*) return;;
+  *i*) ;;
+  *) return;;
 esac
 
 # Load our dotfiles.
-for file in ~/.{aliases,bash_prompt,exports,functions}; do
-	[ -r "$file" ] && [ -f "$file" ] && source "$file";
+for file in ~/.{aliases,bash_prompt,exports,functions,paths}; do
+  [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done
 unset file;
 
@@ -30,10 +30,10 @@ unset file;
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-	test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 
-	alias ls='ls --color=auto'
-	alias grep='grep --color=auto'
+  alias ls='ls --color=auto'
+  alias grep='grep --color=auto'
 fi
 
 #-----------------------------------------------------------------------------
@@ -55,14 +55,21 @@ shopt -s checkwinsize
 # Customs
 #-----------------------------------------------------------------------------
 
+. "${HOME}/.asdf/completions/asdf.bash"
+
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+
 # You may want to put all your additions into a separate file like
 # ~/.shell_custom, instead of adding them here directly.
-if [ -d ~/.shell_custom.d ]; then
-	for i in ~/.shell_custom.d/*.sh; do
-		if [ -r "$i" ]; then
-			. $i
-		fi
-	done
+if [ -d "${HOME}/.shell_custom.d" ]; then
+  for i in ${HOME}/.shell_custom.d/*.sh; do
+    if [ -r "$i" ]; then
+      . "$i"
+    fi
+  done
 
-	unset i
+  unset i
 fi
