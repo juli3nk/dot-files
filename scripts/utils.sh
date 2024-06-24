@@ -8,3 +8,7 @@ get_latest_tag() {
 is_app_installed() {
   type "$1" &>/dev/null
 }
+
+is_gui() {
+  echo "0"
+}

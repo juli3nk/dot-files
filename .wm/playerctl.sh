@@ -7,28 +7,28 @@ mpc() {
 select_player() {
   local PLAYER_CMD="playerctl"
 
-  if [ $(mpc status | grep -ic "playing") -eq 1 ]; then
+  if [ "$(mpc status | grep -ic "playing")" -eq 1 ]; then
     PLAYER_CMD="mpc"
   fi
 
-  echo $PLAYER_CMD
+  echo "$PLAYER_CMD"
 }
 
 player() {
-  local PLAYER_CMD=$(select_player)
+  local PLAYER_CMD="$(select_player)"
 
   case "${PLAYER_CMD}" in
     mpc)
       case "$1" in
         status)
-          if [ $(mpc status | grep -ic "playing") -eq 1 ]; then
+          if [ "$(mpc status | grep -ic "playing")" -eq 1 ]; then
             echo "playing"
           else
             echo "paused"
           fi
         ;;
         play-pause)
-          if [ $(mpc status | grep -ic "playing") -eq 1 ]; then
+          if [ "$(mpc status | grep -ic "playing")" -eq 1 ]; then
             mpc -q stop
           else
             mpc -q play
@@ -44,7 +44,7 @@ player() {
     playerctl)
       case "$1" in
         status)
-          if [ $(playerctl status | grep -ic "playing") -eq 1 ]; then
+          if [ "$(playerctl status | grep -ic "playing")" -eq 1 ]; then
             echo "playing"
           else
             echo "paused"

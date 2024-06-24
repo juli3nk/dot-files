@@ -11,7 +11,7 @@ if [ "$(grep -c "ID=ubuntu" /etc/os-release)" -eq 0 ]; then
   exit 1
 fi
 
-if [ $(id -u) -eq 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then
   echo -e "do not execute this script as root"
   exit 1
 fi
@@ -42,11 +42,9 @@ fi
 mem_size="$(free -m | awk '/^Mem/ { print $2 }')"
 swap_size="$(free -m | awk '/^Swap/ { print $2 }')"
 
-if [ "$mem_size" -gt "$(echo "${MEM_16GB} / 1.10" | bc | awk -F'.' '{ print $1 }')" -a "$mem_size" -lt "$(echo "${MEM_16GB} * 1.10" | bc | awk -F'.' '{ print $1 }')" ]; then
-  MEM_SIZE="$MEM_16GB"
+if [ "$mem_size" -gt "$(echo "${MEM_16GB} / 1.10" | bc | awk -F'.' '{ print $1 }')" ] && [ "$mem_size" -lt "$(echo "${MEM_16GB} * 1.10" | bc | awk -F'.' '{ print $1 }')" ]; then
   SWAP_SIZE="$((MEM_16GB + MEM_EXTRA_16GB))"
-elif [ "$mem_size" -gt "$(echo "${MEM_32GB} / 1.10" | bc | awk -F'.' '{ print $1 }')" -a "$mem_size" -lt "$(echo "${MEM_32GB} * 1.10" | bc | awk -F'.' '{ print $1 }')" ]; then
-  MEM_SIZE="$MEM_32GB"
+elif [ "$mem_size" -gt "$(echo "${MEM_32GB} / 1.10" | bc | awk -F'.' '{ print $1 }')" ] && [ "$mem_size" -lt "$(echo "${MEM_32GB} * 1.10" | bc | awk -F'.' '{ print $1 }')" ]; then
   SWAP_SIZE="$((MEM_32GB + MEM_EXTRA_32GB))"
 else
   echo "cannot guess memory size"

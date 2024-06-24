@@ -5,7 +5,7 @@ CONFIG_FILE_PATH="${HOME}/.config/local/desktop.json"
 kill_prog() {
   prog_pattern="$1"
 
-  prog_pid="$(ps aux | grep -i "$prog_pattern" | awk '{ print $2 }' | tail -n 1)"
+  prog_pid="$(pgrep -i "$prog_pattern" | tail -n 1)"
   if [ -n "$prog_pid" ]; then
     sudo kill "$prog_pid"
   fi

@@ -33,7 +33,7 @@ promtool() {
   docker container run \
     -t \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/workspace \
+    --mount type=bind,src="${PWD}",dst=/tmp/workspace \
     --workdir /tmp/workspace \
     --entrypoint promtool \
     prom/prometheus "$@"
@@ -42,7 +42,7 @@ convert() {
   docker container run \
     -ti \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/workspace \
+    --mount type=bind,src="${PWD}",dst=/tmp/workspace \
     --workdir /tmp/workspace \
     juli3nk/imagemagick convert "$@"
 }
@@ -50,27 +50,27 @@ identify() {
   docker container run \
     -ti \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/workspace \
+    --mount type=bind,src="${PWD}",dst=/tmp/workspace \
     --workdir /tmp/workspace \
     juli3nk/imagemagick identify "$@"
 }
 devgo() {
   # --mount type=bind,src=${SSH_AUTH_SOCK},dst=${SSH_AUTH_SOCK},ro \
   # -e "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" \
-  echo $1
-  local privileged=""
-  if [ "$1" = "privileged" ]; then
+  local privileged
+  if [ "$1" == "privileged" ]; then
     privileged="--privileged"
   fi
-  local mountdst="/go/src/github.com/$(echo $PWD | awk 'BEGIN { FS="/"; OFS="/" } { print $(NF-1), $NF }')"
+  local mountdst
+  mountdst="/go/src/github.com/$(echo "$PWD" | awk 'BEGIN { FS="/"; OFS="/" } { print $(NF-1), $NF }')"
 
   docker container run \
     -ti \
     --rm $privileged \
-    --mount type=bind,src=${PWD},dst=$mountdst \
-    --mount type=bind,src=${HOME}/.gitconfig,dst=/root/.gitconfig,ro \
+    --mount type=bind,src="${PWD}",dst="$mountdst" \
+    --mount type=bind,src="${HOME}/.gitconfig",dst=/root/.gitconfig,ro \
     --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
-    --workdir $mountdst \
+    --workdir "$mountdst" \
     juli3nk/dev:go
 }
 dockerlint() {
@@ -83,7 +83,7 @@ gofmt() {
   docker container run \
     -t \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/workspace \
+    --mount type=bind,src="${PWD}",dst=/tmp/workspace \
     --workdir /tmp/workspace \
     golang:1.16-alpine3.13 gofmt "$@"
 }
@@ -91,7 +91,7 @@ hdu() {
   docker container run \
     -t \
     --rm \
-    --mount type=bind,src=${HOME}/Dev/juli3nk/home-dns-data/data.yml,dst=/tmp/data.yml,ro \
+    --mount type=bind,src="${HOME}/Dev/juli3nk/home-dns-data/data.yml",dst=/tmp/data.yml,ro \
     juli3nk/home-dns-update "$@"
 }
 htpasswd() {
@@ -105,12 +105,12 @@ librewolf() {
     -d \
     --rm \
     --env XDG_RUNTIME_DIR=/tmp \
-    --env WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
-    --mount type=bind,src=${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY},dst=/tmp/${WAYLAND_DISPLAY} \
+    --env WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
+    --mount type=bind,src="${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}",dst="/tmp/${WAYLAND_DISPLAY}" \
     --device /dev/snd \
-    --env PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native \
-    --mount type=bind,src=${XDG_RUNTIME_DIR}/pulse/native,dst=${XDG_RUNTIME_DIR}/pulse/native \
-    --mount type=bind,src=${HOME}/.config/pulse/cookie,dst=/home/user/.config/pulse/cookie \
+    --env PULSE_SERVER="unix:${XDG_RUNTIME_DIR}/pulse/native" \
+    --mount type=bind,src="${XDG_RUNTIME_DIR}/pulse/native",dst="${XDG_RUNTIME_DIR}/pulse/native" \
+    --mount type=bind,src="${HOME}/.config/pulse/cookie",dst=/home/user/.config/pulse/cookie \
     --entrypoint librewolf \
     --name librewolf \
     juli3nk/librewolf
@@ -119,11 +119,11 @@ mpd() {
   docker container run \
     -d \
     --rm \
-    --mount type=bind,src=${HOME}/.config/mpd,dst=/home/user/.config/mpd \
+    --mount type=bind,src="${HOME}/.config/mpd",dst=/home/user/.config/mpd \
     --device /dev/snd \
-    --env PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native \
-    --mount type=bind,src=${XDG_RUNTIME_DIR}/pulse/native,dst=${XDG_RUNTIME_DIR}/pulse/native \
-    --mount type=bind,src=${HOME}/.config/pulse/cookie,dst=/home/user/.config/pulse/cookie \
+    --env PULSE_SERVER="unix:${XDG_RUNTIME_DIR}/pulse/native" \
+    --mount type=bind,src="${XDG_RUNTIME_DIR}/pulse/native",dst="${XDG_RUNTIME_DIR}/pulse/native" \
+    --mount type=bind,src="${HOME}/.config/pulse/cookie",dst=/home/user/.config/pulse/cookie \
     --name mpd \
     juli3nk/mpd
 }
@@ -141,7 +141,7 @@ packer() {
   docker container run \
     -ti \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/project \
+    --mount type=bind,src="${PWD}",dst=/tmp/project \
     --workdir /tmp/project \
     hashicorp/packer:light "$@"
 }
@@ -149,28 +149,28 @@ shellcheck() {
   docker container run \
     -t \
     --rm \
-    --mount type=bind,src=${PWD},dst=/mnt,ro \
+    --mount type=bind,src="${PWD}",dst=/mnt,ro \
     koalaman/shellcheck "$@"
 }
 shfmt() {
   docker container run \
     -t \
     --rm \
-    --mount type=bind,src=${PWD},dst=/mnt,ro \
+    --mount type=bind,src="${PWD}",dst=/mnt,ro \
     juli3nk/shfmt "$@"
 }
 stepca() {
   docker container run \
     -d \
     --rm \
-    --mount type=bind,src=${HOME}/Dev/juli3nk/home-ca-intermediate,dst=/home/step \
+    --mount type=bind,src="${HOME}/Dev/juli3nk/home-ca-intermediate",dst=/home/step \
     smallstep/step-cli step ca "$@"
 }
 cwebp() {
   docker container run \
     -ti \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/workspace \
+    --mount type=bind,src="${PWD}",dst=/tmp/workspace \
     --workdir /tmp/workspace \
     juliengk/webp cwebp "$@"
 }
@@ -178,7 +178,7 @@ vwebp() {
   docker container run \
     -ti \
     --rm \
-    --mount type=bind,src=${PWD},dst=/tmp/workspace \
+    --mount type=bind,src="${PWD}",dst=/tmp/workspace \
     --mount type=bind,src=/tmp/.X11-unix,dst=/tmp/.X11-unix \
     --env "DISPLAY=unix${DISPLAY}" \
     --workdir /tmp/workspace \
@@ -201,7 +201,7 @@ wrangler() {
   docker container run \
     -ti \
     --rm \
-    --mount type=bind,src=${PWD},dst=/home/user/worker \
+    --mount type=bind,src="${PWD}",dst=/home/user/worker \
     --name wrangler \
     juli3nk/wrangler
 }
@@ -209,7 +209,7 @@ yamllint() {
   docker container run \
     -t \
     --rm \
-    --mount type=bind,src=${PWD},dst=/data,ro \
+    --mount type=bind,src="${PWD}",dst=/data,ro \
     cytopia/yamllint "$@"
 }
 
@@ -217,7 +217,7 @@ ollamaserve() {
   docker container run \
     -d \
     --rm \
-    --mount type=bind,src=${HOME}/Data/ollama,dst=/root/.ollama \
+    --mount type=bind,src="${HOME}/Data/ollama",dst=/root/.ollama \
     --publish 11434:11434 \
     --name ollama \
     ollama/ollama
@@ -234,7 +234,7 @@ open-webui() {
   docker container run \
     -d \
     --rm \
-    --mount type=bind,src=${HOME}/Data/open-webui,dst=/app/backend/data \
+    --mount type=bind,src="${HOME}/Data/open-webui",dst=/app/backend/data \
     --publish 3000:8080 \
     --name open-webui \
     ghcr.io/open-webui/open-webui:main

@@ -13,8 +13,11 @@ common:
     - '.git'
     - '.gitignore'
     - '.local'
+    - '.screenrc'
     - '.shell_custom.d'
     - '.tmux'
+    - '.vim'
+    - '.vimrc'
     - '.vim-plugged'
     - '.Xresources'
     - 'docs'
@@ -25,11 +28,20 @@ templates:
   nox:
     ignore:
       - '.wm'
+  shell:
+    dirs:
+      - name: '.kube/contexts'
+    links:
+      - '.local/bin/local-profile'
+      - '.local/bin/update-kubeconfig'
+      - '.shell_custom.d/dockerfunc.sh'
+      - '.shell_custom.d/git.sh'
+      - '.shell_custom.d/k8s.sh'
+      - '.shell_custom.d/sshagent.sh'
   wm-common:
     dirs:
       - name: '.config/wm/conf.d'
       - name: '.local/sbin'
-      - name: '.kube/contexts'
       - name: '.wm'
     links:
       - '.config/wm-common/conf.d/assigns:.config/wm/conf.d/assigns'
@@ -42,15 +54,9 @@ templates:
       - '.config/wm-common/conf.d/status-bar:.config/wm/conf.d/status-bar'
       - '.config/wm-common/conf.d/terminal:.config/wm/conf.d/terminal'
       - '.config/wm-common/conf.d/windows:.config/wm/conf.d/windows'
-      - '.local/bin/local-profile'
-      - '.local/bin/update-kubeconfig'
       - '.local/bin/wifi-connect'
       - '.local/lib/sound.sh'
       - '.local/sbin/local-net'
-      - '.shell_custom.d/dockerfunc.sh'
-      - '.shell_custom.d/git.sh'
-      - '.shell_custom.d/k8s.sh'
-      - '.shell_custom.d/sshagent.sh'
       - '.config/Code/User/settings.json'
       - '.config/alacritty'
   wm-sway:
@@ -80,17 +86,7 @@ templates:
       - '.config/wm-custom/perso:.config/wm/conf.d/perso'
       - '.config/wm-custom/perso-inputs:.config/wm/conf.d/inputs'
       - '.config/wm-custom/perso-vars:.config/wm/vars'
-  work:
-    links:
-      - '.config/wm-custom/work:.config/wm/conf.d/work'
-      - '.config/wm-custom/work-screens:.config/wm/conf.d/screens'
-      - '.config/wm-custom/work-vars:.config/wm/vars'
-      - '.local/bin/worked-from-home'
-  work-sway:
-    links:
-      - '.config/wm-custom/work-inputs-sway:.config/wm/conf.d/inputs'
-#  work-i3:
-#    links:
+
 
 profiles:
   container:
@@ -100,11 +96,11 @@ profiles:
       - '.vim-plugged:Dotfiles/.vim/plugged'
   me:
     include:
+      - 'shell'
       - 'wm-common'
       - 'wm-sway'
       - 'perso'
   work:
     include:
-      - 'wm-common'
-      - 'wm-i3'
-      - 'work'
+      - 'nox'
+      - 'shell'

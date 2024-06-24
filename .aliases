@@ -4,7 +4,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
-alias cat='bat --theme="Catppuccin-mocha"'
+alias cat='bat --theme="Catppuccin Mocha"'
 
 alias vim='nvim'
 

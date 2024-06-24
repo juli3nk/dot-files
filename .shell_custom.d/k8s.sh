@@ -12,12 +12,12 @@ alias kcds='kubectl describe service'
 alias kcdi='kubectl describe ingress'
 
 kc_cert_info() {
-  kubectl get secret $1 -o jsonpath="{.data.tls\.crt}" | base64 -d | openssl x509 -noout -text
+  kubectl get secret "$1" -o jsonpath="{.data.tls\.crt}" | base64 -d | openssl x509 -noout -text
 }
 alias kc-cert-info='kc_cert_info'
 
 kclf() {
-  local tail=${2:100}
+  local tail="${2:100}"
 
   kubectl logs --tail="$tail" -f "$1"
 }

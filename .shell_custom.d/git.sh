@@ -1,13 +1,13 @@
 
 # rewrite git log author info
 git_log_rewrite_author() {
-  if [ -z "$1" -a -z "$2" -a -z "$3" ]; then
+  if [ -z "$1" ] && [ -z "$2" ] && [ -z "$3" ]; then
     echo "usage: git_log_rewrite_author <name|email> <old_value> <new_value>"
     return;
   fi
 
-  if [ "$1" != "name" -o "$1" != "email" ]; then
-    echo "error: first parameter must be \'name\' or \'email\'"
+  if [ "$1" != "name" ] && [ "$1" != "email" ]; then
+    echo -e "error: first parameter must be 'name' or 'email'"
     return;
   fi
 

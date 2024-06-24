@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 CURRENT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
@@ -11,10 +12,10 @@ ASDF_REPO_URL="github.com/asdf-vm/asdf"
 ASDF_VERSION="$(get_latest_tag "$ASDF_REPO_URL")"
 
 if [ ! -d "$ASDF_DIR_PATH" ]; then
-  git clone "https://${ASDF_REPO_URL}.git" "$ASDF_DIR_PATH" --branch "$ASDF_VERSION"
+  git clone "https://${ASDF_REPO_URL}.git" "$ASDF_DIR_PATH" --branch "v${ASDF_VERSION}"
 fi
 
-. "${HOME}/.asdf/asdf.sh"
+. "${ASDF_DIR_PATH}/asdf.sh"
 
 # Install apps using asdf
 declare -a apps=(
@@ -37,7 +38,6 @@ declare -a apps=(
   "ripgrep"
   "sops"
   "step"
-  "trivy"
   "yq"
   "zoxide"
 )
@@ -85,6 +85,12 @@ declare -a helm_plugins=(
 for plugin in "${helm_plugins[@]}"; do
   helm plugin install "$plugin"
 done
+
+
+# Install GUI related apps
+if [ "$(is_gui)" -eq 0 ]; then
+  exit
+fi
 
 # mybar
 mybar_repo_url="github.com/juli3nk/mybar-barista"

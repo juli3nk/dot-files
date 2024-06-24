@@ -11,7 +11,7 @@ remove-music-state() {
 }
 
 music-pause() {
-  if [ $("${HOME}/.wm/playerctl.sh" status | grep -ic "playing") -eq 1 ]; then
+  if [ "$("${HOME}/.wm/playerctl.sh" status | grep -ic "playing")" -eq 1 ]; then
     create-music-state
     "${HOME}/.wm/playerctl.sh" play-pause
   fi
@@ -38,22 +38,22 @@ fingerprint-verify() {
 }
 
 wmlock() {
-  if [ "$XDG_SESSION_DESKTOP" == "sway" -o "$XDG_CURRENT_DESKTOP" == "sway" ]; then
+  if [ "$XDG_SESSION_DESKTOP" == "sway" ] || [ "$XDG_CURRENT_DESKTOP" == "sway" ]; then
     swaylock -f -c 000000
     fingerprint-verify "swaylock"
   fi
-  if [ "$XDG_SESSION_DESKTOP" == "i3" -o "$XDG_CURRENT_DESKTOP" == "i3" ]; then
+  if [ "$XDG_SESSION_DESKTOP" == "i3" ] || [ "$XDG_CURRENT_DESKTOP" == "i3" ]; then
     i3lock --nofork --ignore-empty-password --color=000000 &
     fingerprint-verify "i3lock"
   fi
 }
 
 wmmsg() {
-  if [ "$XDG_SESSION_DESKTOP" == "sway" -o "$XDG_CURRENT_DESKTOP" == "sway" ]; then
-    swaymsg $@
+  if [ "$XDG_SESSION_DESKTOP" == "sway" ] || [ "$XDG_CURRENT_DESKTOP" == "sway" ]; then
+    swaymsg "$@"
   fi
-  if [ "$XDG_SESSION_DESKTOP" == "i3" -o "$XDG_CURRENT_DESKTOP" == "i3" ]; then
-    i3-msg $@
+  if [ "$XDG_SESSION_DESKTOP" == "i3" ] || [ "$XDG_CURRENT_DESKTOP" == "i3" ]; then
+    i3-msg "$@"
   fi
 }
 
@@ -65,7 +65,7 @@ same-wifi() {
   wifi_home="$(jq -r '.wifi.home' "${HOME}/.config/local/net.json")"
   wifi_current="$(nmcli c show --active | awk '/wifi/ { print $1 }')"
 
-  if [ "$wifi_home" != "none" -a "$wifi_current" == "$wifi_home" ]; then
+  if [ "$wifi_home" != "none" ] && [ "$wifi_current" == "$wifi_home" ]; then
     exit
   fi
 }
