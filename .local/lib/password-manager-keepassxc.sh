@@ -17,8 +17,14 @@ pm_get_info() {
 }
 
 
-if [ -z "$KEEPASS_DB_PATH" ]; then exit_ "No Keepass database path set" ; fi
+if [ -z "$KEEPASS_DB_PATH" ]; then
+  echo -e "No Keepass database path set"
+  exit 1
+fi
 
 echo "Keepass password: "
 read -s KEEPASS_PASSWORD
-if [ -z "$KEEPASS_PASSWORD" ]; then exit_ "No Keepass password provided" ; fi
+if [ -z "$KEEPASS_PASSWORD" ]; then
+  echo -e "No Keepass password provided"
+  exit 1
+fi

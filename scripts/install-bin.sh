@@ -21,7 +21,6 @@ fi
 declare -a apps=(
   "age"
   "bat;https://github.com/juli3nk/asdf-bat.git"
-  "cosign"
   "ctop"
   "dagger"
   "dotfiles;https://github.com/juli3nk/asdf-dotfiles.git"
@@ -36,8 +35,6 @@ declare -a apps=(
   "nerdctl"
   "pluto"
   "ripgrep"
-  "sops"
-  "step"
   "yq"
   "zoxide"
 )
@@ -65,6 +62,8 @@ fi
 
 # Kubectl plugins
 declare -a kubectl_plugins=(
+  "ca-cert"
+  "change-ns"
   "neat"
   "stern"
   "outdated"

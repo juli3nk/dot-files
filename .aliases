@@ -30,6 +30,7 @@ alias fastping='ping -c 100 -s.2'
 alias ports='ss -tln'
 
 alias vihosts='sudo vim /etc/hosts'
+alias vihostswin='vim /mnt/c/Windows/System32/drivers/etc/hosts'
 
 alias myip='curl -sf http://checkip.dyndns.org | sed -n "s/^.*Address:\s\(.*\)<\/body>.*$/\1/p"'
 alias myip6='curl -sf http://checkipv6.dyndns.org | sed -n "s/^.*Address:\s\(.*\)<\/body>.*$/\1/p"'
@@ -37,3 +38,5 @@ alias myip6='curl -sf http://checkipv6.dyndns.org | sed -n "s/^.*Address:\s\(.*\
 alias diskusage='sudo du -ak --max-depth=1 2> /dev/null | sort -n'
 
 alias sync-time='sudo chronyc makestep'
+
+alias wifi-connect='nmcli --ask d wifi connect'

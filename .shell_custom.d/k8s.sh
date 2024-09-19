@@ -1,31 +1,23 @@
 
 alias k='kubectl'
 
-alias kcgn='kubectl get node -o wide'
-alias kcgd='kubectl get deployment -o wide'
-alias kcgp='kubectl get pod -o wide'
-alias kcgs='kubectl get service -o wide'
-alias kcgi='kubectl get ingress -o wide'
-alias kcdd='kubectl describe deployment'
-alias kcdp='kubectl describe pod'
-alias kcds='kubectl describe service'
-alias kcdi='kubectl describe ingress'
-
 kc_cert_info() {
   kubectl get secret "$1" -o jsonpath="{.data.tls\.crt}" | base64 -d | openssl x509 -noout -text
 }
 alias kc-cert-info='kc_cert_info'
 
-kclf() {
-  local tail="${2:100}"
+update-kubeconfig() {
+  kubeconfigs=""
+  profile=${1:-*}
 
-  kubectl logs --tail="$tail" -f "$1"
-}
+  kube_config="${HOME}/.kube/config"
 
-kcsh() {
-  local shell="${2:-bash}"
+  for kc in $(find ${HOME}/.kube/contexts/ -maxdepth 1 -name "${profile}.y*ml"); do
+    kubeconfigs+="${kc}:"
+  done
 
-  kubectl exec -ti "$1" -- "$shell"
+  KUBECONFIG="$(echo $kubeconfigs | sed 's/:$//')" kubectl config view --merge --flatten > "$kube_config"
+  chmod 600 "$kube_config"
 }
 
 kcctx() {

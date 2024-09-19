@@ -118,52 +118,41 @@ sudo apt install --no-install-recommends --yes \
   curl \
   git \
   tmux \
-  wget
-
+  wget \
   apt-transport-https \
   ca-certificates \
-
   # Security Utilities
-  'clamav'        # Open source virus scanning suite
-  'cryptsetup'    # Reading / writing encrypted volumes
-  'gnupg'         # PGP encryption, signing and verifying
-  'git-crypt'     # Transparent encryption for git repos
-  'lynis'         # Scan system for common security issues
-  'openssl'       # Cryptography and SSL/TLS Toolkit
-  'rkhunter'      # Search / detect potential root kits
+  clamav \        # Open source virus scanning suite
+  cryptsetup    # Reading / writing encrypted volumes
+  gnupg         # PGP encryption, signing and verifying
+  lynis         # Scan system for common security issues
+  openssl       # Cryptography and SSL/TLS Toolkit
+  rkhunter      # Search / detect potential root kits
 
   # Monitoring, management and stats
-  'btop'          # Live system resource monitoring
-  'bmon'          # Bandwidth utilization monitor
-  'ctop'          # Container metrics and monitoring
-  htop \
-  'gping'         # Interactive ping tool, with graph
-  'glances'       # Resource monitor + web and API
-  'goaccess'      # Web log analyzer and viewer
-  'speedtest-cli' # Command line speed test utility
+  btop'          # Live system resource monitoring
+  bmon'          # Bandwidth utilization monitor
+  ctop'          # Container metrics and monitoring
+  htop'
+  gping'         # Interactive ping tool, with graph
+  speedtest-cli' # Command line speed test utility
 
   # CLI Power Basics
-  'aria2'         # Resuming download util (better wget)
-  'bat'           # Output highlighting (better cat)
-  'ctags'         # Indexing of file info + headers
-  'diff-so-fancy' # Readable file compares (better diff)
-  'duf'           # Get info on mounted disks (better df)
-  'exa'           # Listing files with info (better ls)
-  'fzf'           # Fuzzy file finder and filtering
-  'hyperfine'     # Benchmarking for arbitrary commands
-  'just'          # Powerful command runner (better make)
-  'jq'            # JSON parser, output and query files
-  'most'          # Multi-window scroll pager (better less)
-  'procs'         # Advanced process viewer (better ps)
-  'ripgrep'       # Searching within files (better grep)
-  'scrot'         # Screenshots programmatically via CLI
-  'sd'            # RegEx find and replace (better sed)
-  'tealdeer'      # Reader for command docs (better man)
-  'tree'          # Directory listings as tree structure
-  'tokei'         # Count lines of code (better cloc)
-  'trash-cli'     # Record and restore removed files
-  'xsel'          # Copy paste access to the X clipboard
-  'zoxide'        # Auto-learning navigation (better cd)
+  aria2'         # Resuming download util (better wget)
+  ctags'         # Indexing of file info + headers
+  diff-so-fancy' # Readable file compares (better diff)
+  duf'           # Get info on mounted disks (better df)
+  just'          # Powerful command runner (better make)
+  jq'            # JSON parser, output and query files
+  most'          # Multi-window scroll pager (better less)
+  procs'         # Advanced process viewer (better ps)
+  ripgrep'       # Searching within files (better grep)
+  scrot'         # Screenshots programmatically via CLI
+  sd'            # RegEx find and replace (better sed)
+  tealdeer'      # Reader for command docs (better man)
+  tree'          # Directory listings as tree structure
+  trash-cli'     # Record and restore removed files
+  zoxide'        # Auto-learning navigation (better cd)
 
   gcc \
   libfuse2 \

@@ -9,7 +9,7 @@ case $- in
 esac
 
 # Load our dotfiles.
-for file in ~/.{aliases,bash_prompt,exports,functions,paths}; do
+for file in ${HOME}/.{aliases,bash_prompt,exports,functions,paths}; do
   [ -r "$file" ] && [ -f "$file" ] && source "$file";
 done
 unset file;
@@ -29,8 +29,8 @@ unset file;
 #fi
 
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+if [ -x "/usr/bin/dircolors" ]; then
+  test -r "${HOME}/.dircolors" && eval "$(dircolors -b "${HOME}/.dircolors")" || eval "$(dircolors -b)"
 
   alias ls='ls --color=auto'
   alias grep='grep --color=auto'

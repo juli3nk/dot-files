@@ -10,19 +10,20 @@ start_agent() {
 
       return
     else
-      for pid in $(echo "$SSH_AGENT_PID_SHELL" | grep -v "$SSH_AGENT_PID_ENV_FILE"); do
-        export SSH_AGENT_PID="$pid"
-        ssh-agent -k
+      for pid in ${SSH_AGENT_PID_SHELL}; do
+        SSH_AGENT_PID="$pid" ssh-agent -k
       done
     fi
   fi
 
-  echo "Initialising SSH agent ..."
-  ssh-agent | sed 's/^echo/#echo/' > "$SSH_ENV_FILE"
-  echo "succeeded"
+  if [ "$(ps ux | grep -c "[s]sh-agent")" -eq 0 ]; then
+    echo "Initialising SSH agent ..."
+    ssh-agent | sed 's/^echo/#echo/' > "$SSH_ENV_FILE"
+    echo -e "succeeded"
 
-  chmod 600 "$SSH_ENV_FILE"
-  source "$SSH_ENV_FILE" > /dev/null
+    chmod 600 "$SSH_ENV_FILE"
+    source "$SSH_ENV_FILE" > /dev/null
+  fi
 }
 
 add_identity() {

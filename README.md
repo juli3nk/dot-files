@@ -1,4 +1,4 @@
-# dot-files
+# my dot-files
 
 dot files, managed by [dotfiles](https://github.com/juli3nk/dotfiles).
 
@@ -25,10 +25,9 @@ dot files, managed by [dotfiles](https://github.com/juli3nk/dotfiles).
 | **Archive Files**           | File-Roller[engrampa]            | File-Roller[engrampa]            |
 | **Office suite**            | LibreOffice                      | LibreOffice                      |
 | **Pdf reader**              | Evince[Atril]                    | Evince[Atril]                    |
-| **Music Player**            | [mpd][mpd] [mpc][mpc]            |                                  |
+| **Music Player**            | [mpd][mpd] [mpc][mpc]            | [mpd][mpd] [mpc][mpc]            |
 | **Media Player**            | [mpv][mpv]                       | [mpv][mpv]                       |
-| **Video Player**            | VLC                              | vlc                              |
+| **Video Player**            | VLC                              | VLC                              |
 | **Image Viewer**            | [imv][imv]                       | [imv][imv]                       |
 | **Screenshot Software**     | [grim][grim]                     | [flameshot][flameshot]           |
 | **Screen Recording**        | [OBS][OBS]                       | [OBS][OBS]                       |
-

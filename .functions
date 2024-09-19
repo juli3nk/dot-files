@@ -1,12 +1,3 @@
-# Custom less function, uses vim so we get syntax highlighting
-cless() {
-  if [ $# -eq 0 ]; then
-    vim -c "so $MYVIMDIR/tools/less.vim" -
-  else
-    vim -c "so $MYVIMDIR/tools/less.vim" "$@"
-  fi
-}
-
 # Create a new directory and enter it
 mcd() {
   mkdir -p "$@" && cd "$@"

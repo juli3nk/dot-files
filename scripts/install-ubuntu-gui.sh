@@ -138,6 +138,7 @@ if [ "$1" == "i3" ]; then
     redshift \
     suckless-tools \
     xclip \
+    xsel \          # Copy paste access to the X clipboard
     xss-lock
 fi
 

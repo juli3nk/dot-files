@@ -3,9 +3,9 @@ case ":${PATH}:" in
   *:"$HOME/.local/bin":*)
     ;;
   *)
-    PATH="$PATH:$HOME/.local/bin"
+    PATH="${HOME}/.local/bin:${PATH}"
     ;;
 esac
+
 . "${HOME}/.asdf/asdf.sh"
-. "${HOME}/.cargo/env"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
