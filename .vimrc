@@ -6,7 +6,7 @@ set nocompatible
 set encoding=utf-8
 set binary
 
-"set nowrap		  " don't wrap lines
+"set nowrap     " don't wrap lines
 set shiftround  " use multiple of shiftwidth when indenting with '<' and '>'
 set showmatch   " show matching parenthesis
 set showcmd     " show number of selected lines in visual mode
@@ -19,7 +19,7 @@ set smartcase   " ignore case if search pattern is all lowercase, case-sensitive
 
 " ignore some file extensions when completing names by pressing Tab
 set wildignore=*.swp,*~,*.bak,*.pyc,*.jpg,*.png,*.xpm,*.gif
-set nobackup  " do not create backup file ~
+set nobackup    " do not create backup file ~
 
 " increase buffer size
 set viminfo='100,<1000,s20,h
@@ -43,6 +43,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'itchyny/lightline.vim'
 Plug 'myusuf3/numbers.vim'
+Plug 'mbbill/undotree'
 Plug 'editorconfig/editorconfig-vim'
 
 " Initialize plugin system

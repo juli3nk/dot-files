@@ -39,4 +39,4 @@ alias diskusage='sudo du -ak --max-depth=1 2> /dev/null | sort -n'
 
 alias sync-time='sudo chronyc makestep'
 
-alias wifi-connect='nmcli --ask d wifi connect'
+alias k='kubectl'

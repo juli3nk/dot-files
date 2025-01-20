@@ -3,8 +3,11 @@ export TERM="xterm-256color"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-export PAGER="less"
 export LESS="-R"
+
+export PAGER="less"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export DELTA_PAGER="less -R" # enable scrolling in git diff
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
