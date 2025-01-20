@@ -1,7 +1,7 @@
 
 bindsym $mod+Alt+l exec "$HOME/.wm/screen-lock.sh lock"
 
-### Idle configuration
+# Idle configuration
 #
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -9,6 +9,6 @@ bindsym $mod+Alt+l exec "$HOME/.wm/screen-lock.sh lock"
 exec swayidle -w \
     timeout 60 "$HOME/.wm/screen-lock.sh lock-soft idle" \
     timeout 300 "$HOME/.wm/screen-lock.sh lock idle" \
-    timeout 600 "$HOME/.wm/screen-lock.sh off" \
+    timeout 600 "$HOME/.wm/screen-lock.sh off idle"\
     before-sleep "$HOME/.wm/screen-lock.sh lock" \
     after-resume "$HOME/.wm/screen-lock.sh resume"

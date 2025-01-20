@@ -21,6 +21,7 @@ fi
 declare -a apps=(
   "age"
   "bat;https://github.com/juli3nk/asdf-bat.git"
+  "cosign"
   "ctop"
   "dagger"
   "dotfiles;https://github.com/juli3nk/asdf-dotfiles.git"
@@ -31,10 +32,13 @@ declare -a apps=(
   "krew"
   "kubectl"
   "kubent"
+  "lefthook"
   "neovim;https://github.com/juli3nk/asdf-neovim.git"
   "nerdctl"
   "pluto"
   "ripgrep"
+  "sops"
+  "step"
   "yq"
   "zoxide"
 )
@@ -61,14 +65,17 @@ fi
 #popd
 
 # Kubectl plugins
+# https://krew.sigs.k8s.io/plugins/
 declare -a kubectl_plugins=(
-  "ca-cert"
-  "change-ns"
+  "config-doctor"
+  "ctx"
   "neat"
-  "stern"
+  "ns"
   "outdated"
+  "stern"
   "view-cert"
   "view-secret"
+  "view-utilization"
 )
 
 for plugin in "${kubectl_plugins[@]}"; do

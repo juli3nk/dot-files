@@ -7,14 +7,16 @@ It can also be used NTPv4 server to provide time service to other servers in the
 
 Chrony comes with two programs:
 
-    chronyc – command line interface for chrony
-    chronyd – daemon that can be started at boot time
+* chronyc – command line interface for chrony
+* chronyd – daemon that can be started at boot time
 
 ### Check Chrony Synchronization in Linux
 
 To check if chrony is actually synchronized, we will use it’s command line program chronyc, which has the tracking option which will provide relevant information.
 
+```shell
 $ chronyc tracking
+```
 
 The listed files provide the following information:
 
@@ -32,12 +34,15 @@ The listed files provide the following information:
 
 To check information about chrony’s sources, you can issue the following command.
 
+```shell
 $ chronyc sources
+```
 
 Configure Chrony in Linux
 
-The configuration file of chrony is located at /etc/chrony.conf or /etc/chrony/chrony.conf and sample configuration file may look something like this:
+The configuration file of chrony is located at `/etc/chrony.conf` or `/etc/chrony/chrony.conf` and sample configuration file may look something like this:
 
+```conf
 server 0.rhel.pool.ntp.org iburst
 server 1.rhel.pool.ntp.org iburst
 server 2.rhel.pool.ntp.org iburst
@@ -47,31 +52,38 @@ stratumweight 0
 driftfile /var/lib/chrony/drift
 makestep 10 3
 logdir /var/log/chrony
+```
 
 The above configuration provide the following information:
 
-    server – this directive used to describe a NTP server to sync from.
-    stratumweight – how much distance should be added per stratum to the sync source. The default value is 0.0001.
-    driftfile – location and name of the file containing drift data.
-    Makestep – this directive causes chrony to gradually correct any time offset by speeding or slowing down the clock as required.
-    logdir – path to chrony’s log file.
+* server – this directive used to describe a NTP server to sync from.
+* stratumweight – how much distance should be added per stratum to the sync source. The default value is 0.0001.
+* driftfile – location and name of the file containing drift data.
+* Makestep – this directive causes chrony to gradually correct any time offset by speeding or slowing down the clock as required.
+* logdir – path to chrony’s log file.
 
 If you want to step the system clock immediately and ignoring any adjustments currently being in progress, you can use the following command:
 
+```shell
 $ chronyc makestep
+```
 
 Si l’on souhaite limiter Chrony à la machine locale on doit indiquer dans le fichier de configuration les lignes suivantes :
 
+```conf
 allow 127/8
 bindcmdaddress 127.0.0.1
+```
 
 Il est également possible de transformer le serveur Linux en serveur NTP. Pour se faire, le port UDP/123 réservé au protocole NTP doit être ouvert et il suffit ensuite d’ajouter les lignes ci-dessous au fichier de configuration :
 
+```coonf
 allow 127/8
 allow 10/8
 allow 172.16/12
 allow 192.168/16
 bindcmdaddress 0.0.0.0
+```
 
 ### V. Sécurisation de chrony
 
@@ -116,4 +128,3 @@ chronyc> authhash SHA1
 chronyc> password HEX:7A2A67C0DBC1F0F16651B233EAC17361E81EA765
 
 Si la commande chronyc est utilisée pour configure le daemon local chronyd, ces commandes peuvent être passées directement via l’option -a.
-

@@ -41,4 +41,4 @@ if [ "$(is_gui)" -eq 0 ]; then
 fi
 
 # Alacritty
-mv tmp/alacritty ~/.config/alacritty/catppuccin
+mv tmp/alacritty "${HOME}/.config/alacritty/catppuccin"

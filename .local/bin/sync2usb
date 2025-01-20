@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+check_rsync_error() {
+  if [ $? -ne 0 ]; then
+    echo "Error: rsync failed during the backup operation."
+    exit 1
+  fi
+}
+
+DST_PATH="/mnt/veracrypt1"
+LOG_FILE_SUFFIX=".usbackup.log"
+LOG_FILE="$(mktemp --suffix="$LOG_FILE_SUFFIX")"
+
+if ! mountpoint -q "$DST_PATH"; then
+  echo "Error: Destination path '$DST_PATH' is not mounted."
+  exit 1
+fi
+
+if [ ! -d "$DST_PATH" ]; then
+  echo "Error: Destination path '$DST_PATH' does not exist."
+  exit 1
+fi
+
+ARG_DRY_RUN="${1:-true}"
+dry_run="--dry-run"
+if [ "$ARG_DRY_RUN" != "true" ]; then
+	dry_run=""
+fi
+
+if [ -f "/tmp/tmp.*${LOG_FILE_SUFFIX}" ]; then
+  rm /tmp/tmp.*${LOG_FILE_SUFFIX}
+fi
+
+RSYNC_OPTIONS="-auv --progress"
+RSYNC_OPTIONS_DELETE="${RSYNC_OPTIONS} --delete"
+
+# Exécution de rsync avec log
+rsync $RSYNC_OPTIONS $dry_run "${HOME}/00_Archive" "${DST_PATH}/" 2>&1 | tee -a "$LOG_FILE"
+check_rsync_error
+
+rsync $RSYNC_OPTIONS_DELETE $dry_run --exclude='others/' "${HOME}/Dev" "${DST_PATH}/" 2>&1 | tee -a "$LOG_FILE"
+check_rsync_error
+
+rsync $RSYNC_OPTIONS_DELETE $dry_run "${HOME}/Documents" "${DST_PATH}/" 2>&1 | tee -a "$LOG_FILE"
+check_rsync_error
+
+rsync $RSYNC_OPTIONS_DELETE $dry_run "${HOME}/Passwords" "${DST_PATH}/" 2>&1 | tee -a "$LOG_FILE"
+check_rsync_error
+
+echo "Backup process completed. Log file: $LOG_FILE"

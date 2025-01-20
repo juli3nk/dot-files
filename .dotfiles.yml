@@ -6,6 +6,7 @@ common:
     - name: '.local/bin'
     - name: '.local/env'
     - name: '.local/lib'
+    - name: '.local/sbin'
     - name: '.shell_custom.d'
   ignore:
     - '.config'
@@ -36,7 +37,6 @@ templates:
       - '.local/bin/update-kubeconfig'
       - '.shell_custom.d/dockerfunc.sh'
       - '.shell_custom.d/git.sh'
-      - '.shell_custom.d/k8s.sh'
       - '.shell_custom.d/sshagent.sh'
   wm-common:
     dirs:
@@ -44,6 +44,8 @@ templates:
       - name: '.local/sbin'
       - name: '.wm'
     links:
+      - '.config/alacritty'
+      - '.config/Code/User/settings.json'
       - '.config/wm-common/conf.d/assigns:.config/wm/conf.d/assigns'
       - '.config/wm-common/conf.d/theme:.config/wm/conf.d/theme'
       - '.config/wm-common/conf.d/exec:.config/wm/conf.d/exec'
@@ -57,8 +59,6 @@ templates:
       - '.local/bin/wifi-connect'
       - '.local/lib/sound.sh'
       - '.local/sbin/local-net'
-      - '.config/Code/User/settings.json'
-      - '.config/alacritty'
   wm-sway:
     dirs:
       - name: '.config/sway'
@@ -83,6 +83,7 @@ templates:
       - '.Xresources'
   perso:
     links:
+      - '.config/systemd/user/local-net.service'
       - '.config/wm-custom/perso:.config/wm/conf.d/perso'
       - '.config/wm-custom/perso-inputs:.config/wm/conf.d/inputs'
       - '.config/wm-custom/perso-vars:.config/wm/vars'

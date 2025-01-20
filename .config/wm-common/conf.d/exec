@@ -1,8 +1,6 @@
-
 #
 # Exec
 #
+
 exec udiskie -F
 #exec --no-startup-id libinput-gestures
-
-exec --no-startup-id ~/.local/sbin/local-net
