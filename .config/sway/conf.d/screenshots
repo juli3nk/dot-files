@@ -1,21 +1,21 @@
 
+# All displays to file
+bindsym ctrl+alt+Print exec grim $(xdg-user-dir PICTURES)/$(date +'%s_grim.png')
+
 # Current display to clipboard
-bindsym Print exec grimshot --notify copy output
+bindsym Print exec grim -o $(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name') | wl-copy
 
 # Current display to file
-bindsym $mod+Print exec grimshot --notify save output
-
-# All displays to file
-bindsym ctrl+alt+Print exec grimshot --notify save
+bindsym $mod+Print exec grim -o $(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name') $(xdg-user-dir PICTURES)/$(date +'%s_grim.png')
 
 # Current window to clipboard
-bindsym alt+Print exec grimshot --notify copy active
+bindsym alt+Print exec grim -g "$(swaymsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).rect | "\(.x),\(.y) \(.width)x\(.height)"')" | wl-copy
 
 # Current window to file
-bindsym $mod+alt+Print exec grimshot --notify save active
+bindsym $mod+alt+Print exec grim -g "$(swaymsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).rect | "\(.x),\(.y) \(.width)x\(.height)"')" $(xdg-user-dir PICTURES)/$(date +'%s_grim.png')
 
 # Region-select-screenshot to clipboard
-bindsym ctrl+Print exec grimshot --notify copy area
+bindsym ctrl+Print exec grim -g "$(slurp)" - | wl-copy
 
 # Region-select-screenshot to file
-bindsym $mod+ctrl+Print exec grimshot --notify save area
+bindsym $mod+ctrl+Print exec grim -g "$(slurp)" $(xdg-user-dir PICTURES)/$(date +'%s_grim.png')

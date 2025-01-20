@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+
+# ANSI color codes
+reset="\e[0m"
+red="\e[1;31m"
+blue="\e[1;34m"
+orange="\e[38;5;214m"
+
+ha_types=("integration" "dashboard")
+force_mode=false
+dry_run=false
+verbose_mode=false
+ha_core_repo_branch_name="dev"
+
+help_info() {
+  echo -e "Usage: ha_dev [-f|--force] [-d|--dry-run] [-v|--verbose] <integration|dashboard> <user1/repo>"
+  exit 1
+}
+
+log() {
+  local level
+  local msg="$2"
+
+  case "$1" in
+    fatal) level="${red}FATAL${reset}" ;;
+    error) level="${red}ERROR${reset}" ;;
+    warning) level="${orange}WARNING${reset}" ;;
+    info|*) level="${blue}INFO${reset}" ;;
+  esac
+
+  echo -e "${level}: ${msg}"
+}
+
+validate_ha_core() {
+  if ! awk -F' = ' '/"Source Code"/ { print $2 }' pyproject.toml | grep -q "https://github.com/home-assistant/core"; then
+    log "fatal" "Working directory is not Home Assistant Core repository"
+    exit 1
+  fi
+}
+
+validate_ha_type() {
+  local type="$1"
+  if ! printf "%s\n" "${ha_types[@]}" | grep -Fxq "$type"; then
+    log "fatal" "Invalid type '$type'. Expected one of: ${ha_types[*]}"
+    help_info
+  fi
+}
+
+backup_modified_files() {
+  local backup_dir="backup_git_$(date +%Y%m%d_%H%M%S)"
+  log "info" "Backing up modified files to ${backup_dir}/"
+  [ "$dry_run" = false ] && mkdir -p "$backup_dir"
+
+  git ls-files --modified --others --exclude-standard | while read -r file; do
+    [ "$dry_run" = false ] && mkdir -p "$backup_dir/$(dirname "$file")"
+    [ "$dry_run" = false ] && cp "$file" "${backup_dir}/${file}"
+    if [ "$verbose_mode" = true ]; then
+      log "info" "Backing up: $file -> ${backup_dir}/${file}"
+    fi
+  done
+}
+
+check_git_status() {
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    log "fatal" "Not a Git repository."
+    exit 1
+  fi
+
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    if [ "$force_mode" = true ]; then
+      log "warning" "There are unstaged or uncommitted changes, but proceeding due to --force."
+      backup_modified_files
+    else
+      log "warning" "There are unstaged or uncommitted changes in the repository."
+      read -p "Are you sure you want to reset and pull the latest changes? (y/N) " confirm
+      if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+        log "fatal" "Aborted."
+        exit 1
+      fi
+      backup_modified_files
+    fi
+  fi
+
+  if [ "$verbose_mode" = true ]; then
+    log "info" "Executing: git reset --hard"
+  fi
+  log "info" "Would run: git reset --hard"
+  log "info" "Would run: git pull upstream ${ha_core_repo_branch_name}"
+  log "info" "Would run: git push origin ${ha_core_repo_branch_name}"
+  [ "$dry_run" = false ] && git reset --hard
+  [ "$dry_run" = false ] && git pull upstream "$ha_core_repo_branch_name"
+  [ "$dry_run" = false ] && git push origin "$ha_core_repo_branch_name"
+}
+
+while [[ "$1" =~ ^- ]]; do
+  case "$1" in
+    -f|--force) force_mode=true ;;
+    -d|--dry-run) dry_run=true ;;
+    -v|--verbose) verbose_mode=true ;;
+    *) log "fatal" "Unknown option: $1"; help_info ;;
+  esac
+  shift
+done
+
+if [ $# -lt 2 ]; then
+  help_info
+fi
+
+ha_type="$1"
+ha_name="$2"
+tmp_dir=$(mktemp -d)
+
+validate_ha_core
+validate_ha_type "$ha_type"
+check_git_status
+
+if [ "$ha_type" == "integration" ]; then
+  dest_dir="config/custom_components"
+  repo_subdir="custom_components"
+elif [ "$ha_type" == "dashboard" ]; then
+  dest_dir="config/dashboards"
+  repo_subdir=""
+fi
+
+if [ "$verbose_mode" = true ]; then
+  log "info" "Creating directory: $dest_dir"
+fi
+log "info" "Would create directory: $dest_dir"
+[ "$dry_run" = false ] && mkdir -p "$dest_dir"
+
+if [ "$verbose_mode" = true ]; then
+  log "info" "Cloning repository: git@github.com:${ha_name}.git -> ${tmp_dir}/${ha_type}"
+fi
+log "info" "Would clone repository: git@github.com:${ha_name}.git -> ${tmp_dir}/${ha_type}"
+[ "$dry_run" = false ] && git clone "git@github.com:${ha_name}.git" "${tmp_dir}/${ha_type}" || {
+  log "fatal" "Failed to clone repository '$ha_name'"
+  exit 1
+}
+
+dir_name="$(ls -1 "${tmp_dir}/${ha_type}/${repo_subdir}/" | head -n 1)"
+if [ -d "${dest_dir}/${dir_name}" ]; then
+  log "fatal" "Directory ${dest_dir}/${dir_name} already exists."
+  exit 1
+fi
+
+if [ -n "$repo_subdir" ]; then
+  if [ "$verbose_mode" = true ]; then
+    log "info" "Moving files from ${tmp_dir}/${ha_type}/${repo_subdir}/ to ${dest_dir}/"
+  fi
+  log "info" "Would move files from ${tmp_dir}/${ha_type}/${repo_subdir}/ to ${dest_dir}/"
+  [ "$dry_run" = false ] && mv "${tmp_dir}/${ha_type}/${repo_subdir}/"* "${dest_dir}/"
+else
+  if [ "$verbose_mode" = true ]; then
+    log "info" "Moving files from ${tmp_dir}/${ha_type}/ to ${dest_dir}/"
+  fi
+  log "info" "Would move files from ${tmp_dir}/${ha_type}/ to ${dest_dir}/"
+  [ "$dry_run" = false ] && mv "${tmp_dir}/${ha_type}/"* "${dest_dir}/"
+fi
+
+if [ "$verbose_mode" = true ]; then
+  log "info" "Removing temporary directory: $tmp_dir"
+fi
+log "info" "Would remove temporary directory: $tmp_dir"
+[ "$dry_run" = false ] && rm -rf "$tmp_dir"
+
+log "info" "$ha_type successfully installed in ${dest_dir}/"

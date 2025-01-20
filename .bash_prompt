@@ -2,90 +2,106 @@
 # Git Prompt
 #-----------------------------------------------------------------------------
 
-# Colors
-color_reset='\e[0m'
+# ANSI color codes
+reset="\e[0m"
+bold="\e[1m"
 
-color_red='\e[1;31m'
-color_green='\[\e[0;32m\]'
-color_yellow='\[\e[1;33m\]'
-color_blue='\[\e[1;34m\]'
-color_cyan='\[\e[1;36m\]'
-color_white='\[\e[1;37m\]'
+red="\e[1;31m"
+green="\e[1;32m"
+yellow="\e[1;33m"
+blue="\e[1;34m"
+cyan="\e[1;36m"
+white="\e[1;37m"
+orange="\e[38;5;214m"
 
-
-# change prompt when using git
+# Get the current git branch
 git_branch() {
-  local _result="$(git symbolic-ref --short -q HEAD 2> /dev/null)"
-
-  if [ -z "$_result" ]; then
-    _result=""
-  else
-    _result="$_result"
-  fi
-
-  echo "$_result"
+  git symbolic-ref --short HEAD 2>/dev/null
 }
 
+# Check if the current branch is up-to-date
+git_is_uptodate() {
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    echo 33  # No Git repository
+    return
+  fi
+
+  local remote="origin"
+  local remote_head
+  local local_head
+
+  remote_head=$(git ls-remote --heads "$remote" "$(git_branch)" 2>/dev/null | awk '{ print $1 }')
+  local_head=$(git rev-parse HEAD 2>/dev/null)
+
+  if [[ -z "$remote_head" ]]; then
+    echo 33  # No remote tracking branch
+  elif [[ "$remote_head" == "$local_head" ]]; then
+    echo 32  # Up-to-date (Green)
+  else
+    echo 31  # Behind remote (Red)
+  fi
+}
+
+# Check if the working directory is dirty
 git_dirty() {
-  # check if we're in a git repo
-  command git rev-parse --is-inside-work-tree &> /dev/null || return
+  git rev-parse --is-inside-work-tree &>/dev/null || return
 
-  # check if it's dirty
-  command git diff --quiet --ignore-submodules HEAD &> /dev/null
-  if [ "$?" -gt 0 ]; then
-    echo -e "${color_red}✗${color_reset}"
+  if git diff --quiet --ignore-submodules HEAD &>/dev/null; then
+    echo -e "${green}✔${reset}"
   else
-    echo -e "${color_green}✔${color_reset}"
+    echo -e "${red}✗${reset}"
   fi
 }
 
-# get the status of the current branch and it's remote
+# Show arrows if commits are ahead/behind upstream
 # If there are changes upstream, display a ⇣
 # If there are changes that have been committed but not yet pushed, display a ⇡
 git_arrows() {
-  # do nothing if there is no upstream configured
-  command git rev-parse --abbrev-ref @"{u}" &> /dev/null || return
+  git rev-parse --abbrev-ref @{"u"} &>/dev/null || return
 
-  local arrows
-  local arrow_status
-  local left
-  local right
+  local arrows left right
+  read -r left right <<< "$(git rev-list --left-right --count HEAD...@{"u"} 2>/dev/null)"
 
-  arrow_status="$(command git rev-list --left-right --count HEAD...@"{u}" 2> /dev/null)"
-
-  # do nothing if the command failed
-  if [ "$?" -gt 0 ]; then return ; fi
-
-  # split on tabs
-  read -r -a arrow_status <<< "$arrow_status"
-  left="${arrow_status[0]}"
-  right="${arrow_status[1]}"
-
-  if [ "$left" -gt 0 ]; then arrows+="${color_blue}⇡${color_reset}" ; fi
-  if [ "$right" -gt 0 ]; then arrows+="${color_yellow}⇣${color_reset}" ; fi
+  [[ "$right" -gt 0 ]] && arrows+="${yellow}⇣${reset}"
+  [[ "$left" -gt 0 ]] && arrows+="${blue}⇡${reset}"
 
   echo -e "$arrows"
 }
 
+# Indicate if there are background jobs
+# If there is a job in the background, display a ✱
+suspended_jobs() {
+  if jobs 2>/dev/null | grep -q .; then
+    echo -e "${orange}✱${reset}"
+  fi
+}
 
-# Highlight the user name when logged in as root.
-if [ "$USER" == "root" ]; then
-  userStyle="$color_red"
-else
-  userStyle="$color_cyan"
+
+# Set styles based on user and SSH session
+userStyle=$([[ "$USER" == "root" ]] && echo "$red" || echo "$cyan")
+hostStyle=$([[ -n "$SSH_TTY" ]] && echo "${bold}${red}" || echo "$yellow")
+
+# Set the terminal title
+PS1="\[\033]0;\u@\h:\w\007\]"
+
+# Prompt structure
+if [[ -n "$SSH_TTY" && -z "$TMUX" ]]; then
+PS1+="\[${bold}\]\n"
+PS1+="\[${userStyle}\]\u\[${white}\] at \[${hostStyle}\]\h"
+PS1+="\[${white}\] in "
 fi
+PS1+="\[${green}\]\w\[${reset}\]"; # working directory
 
-PS1=""
+# Docker indicator
+[[ -f /.dockerenv ]] && PS1+="\[${white}\] [c]"
 
-if [ -f "/.dockerenv" ]; then
-  PS1+="${color_white}[c]${color_reset} ${userStyle}\u${color_reset} ${white}→${color_reset} "
-fi
+# Git status
+PS1+=" \$(git_dirty) \$(git_branch) \$(git_arrows) \[${reset}\]"
 
-PS1+="${color_green}\w${color_reset}"
-PS1+=" \$(git_dirty) ${color_white}\$(git_branch)${color_reset} \$(git_arrows)"
-PS1+="\n"
-PS1+="${color_white}>${color_reset} "
+# Newline + Prompt symbol
+PS1+="\n\[${white}\]> \[${reset}\]"
 
-PS2="${color_yellow}→${color_reset} "
+# Secondary prompt
+PS2="\[${yellow}\]→ \[${reset}\]"
 
 export PS1 PS2

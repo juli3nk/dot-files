@@ -1,57 +1,118 @@
 #!/usr/bin/env bash
 
-local_profile_config="${HOME}/.config/local/profile.json"
-local_profile_data_dir="${HOME}/.local/share/local-profile"
+PROFILE_CONFIG="${HOME}/.config/local/profile.json"
+PROFILE_DIR="${HOME}/Vault/local-profile"
+BACKUP_DIR="${HOME}/Vault/backups"
 
-current_context_name="$(jq -r '.name' "$local_profile_config")"
+DRY_RUN=false
 
-if [ "$1" == "new" ]; then
-  mkdir -p "${local_profile_data_dir}/${2}/kubeconfig.d"
-
-  mkdir -p "${local_profile_data_dir}/${2}/ssh/keys"
-  touch "${local_profile_data_dir}/${2}/ssh/config"
-  touch "${local_profile_data_dir}/${2}/ssh/known_hosts"
-
-  cp "${local_profile_data_dir}/local/tool-versions" "${local_profile_data_dir}/${2}/tool-versions"
+# Enable dry-run mode if the option is provided
+if [ "$1" == "--dry-run" ]; then
+  DRY_RUN=true
+  shift
 fi
 
-if [ "$1" == "ls" ]; then
-  ls -1 "$local_profile_data_dir" | sort | sed "s/\(${current_context_name}\)/\1 \*/"
+# Check if profile.json exists
+if [ ! -f "$PROFILE_CONFIG" ]; then
+  echo "⚠️ Missing configuration file. Creating a default profile..."
+  echo '{"name": "default"}' > "$PROFILE_CONFIG"
 fi
 
-if [ "$1" == "use" ]; then
-  context_name="$2"
+current_context=$(jq -r '.name' "$PROFILE_CONFIG")
 
-  if [ -z "$2" ]; then
-    context_name=$(ls -1 "$local_profile_data_dir" | sort | fzf)
-  fi
+case "$1" in
+  new)
+    if [ -z "$2" ]; then
+      echo "❌ Error: Profile name required."
+      exit 1
+    fi
 
-  if [ ! -d "${local_profile_data_dir}/${current_context_name}" -a ! -d "${local_profile_data_dir}/${context_name}" ]; then
-    exit
-  fi
+    echo "📂 Creating profile '$2'..."
+    $DRY_RUN || mkdir -p "${PROFILE_DIR}/${2}/kubeconfig.d"
+    $DRY_RUN || mkdir -p "${PROFILE_DIR}/${2}/ssh/keys"
+    $DRY_RUN || touch "${PROFILE_DIR}/${2}/ssh/config"
+    $DRY_RUN || touch "${PROFILE_DIR}/${2}/ssh/known_hosts"
+    $DRY_RUN || cp "${HOME}/.tool-versions" "${PROFILE_DIR}/${2}/tool-versions"
+    echo "✅ Profile '$2' created successfully."
+    ;;
 
-  rsync -c --delete "${HOME}/.kube/contexts/" "${local_profile_data_dir}/${current_context_name}/kubeconfig.d/" 2> /dev/null
-  rsync -c --delete "${HOME}/.ssh/keys/" "${local_profile_data_dir}/${current_context_name}/ssh/keys/" 2> /dev/null
-  cp "${HOME}/.ssh/config" "${local_profile_data_dir}/${current_context_name}/ssh/config" 2> /dev/null
-  cp "${HOME}/.ssh/known_hosts" "${local_profile_data_dir}/${current_context_name}/ssh/known_hosts" 2> /dev/null
-  cp "${HOME}/.tool-versions" "${local_profile_data_dir}/${current_context_name}/tool-versions" 2> /dev/null
+  ls)
+    echo "📌 Available profiles:"
+    ls -1 "$PROFILE_DIR" | sort | sed "s/\(${current_context}\)/\1 */"
+    ;;
 
-  rm -rf "${HOME}/.kube/contexts" 2> /dev/null
-  rm -rf "${HOME}/.ssh/keys" 2> /dev/null
-  rm -f "${HOME}/.ssh/config" 2> /dev/null
-  rm -f "${HOME}/.ssh/known_hosts" 2> /dev/null
-  rm -f "${HOME}/.tool-versions" 2> /dev/null
+  use)
+    if [ -z "$2" ]; then
+      context_name=$(ls -1 "$PROFILE_DIR" | sort | fzf)
+    else
+      context_name="$2"
+    fi
 
-  cp -r "${local_profile_data_dir}/${context_name}/kubeconfig.d" "${HOME}/.kube/contexts" 2> /dev/null
-  cp -r ${local_profile_data_dir}/${context_name}/ssh/* "${HOME}/.ssh/" 2> /dev/null
-  cp "${local_profile_data_dir}/${context_name}/tool-versions" "${HOME}/.tool-versions"
+    if [ ! -d "${PROFILE_DIR}/${context_name}" ]; then
+      echo "❌ Error: Profile '${context_name}' does not exist."
+      exit 1
+    fi
 
-  "${HOME}/.local/bin/update-kubeconfig"
+    echo "⚠️ Warning: This will overwrite your current configuration. Do you want to continue? (y/N)"
+    read -r confirmation
+    if [[ "$confirmation" != "y" && "$confirmation" != "Y" ]]; then
+      echo "❌ Operation canceled."
+      exit 1
+    fi
 
-  tmp_json_file="/tmp/local-profile.json"
+    echo "📂 Backing up current profile '${current_context}'..."
+    timestamp=$(date +%Y%m%d_%H%M%S)
+    backup_path="${BACKUP_DIR}/${timestamp}_${current_context}"
+    $DRY_RUN || mkdir -p "$backup_path"
+    $DRY_RUN || rsync -a --delete "${HOME}/.kube/contexts/" "$backup_path/kubeconfig.d/" 2>/dev/null
+    $DRY_RUN || rsync -a --delete "${HOME}/.ssh/" "$backup_path/ssh/" 2>/dev/null
+    $DRY_RUN || cp "${HOME}/.tool-versions" "$backup_path/tool-versions" 2>/dev/null
 
-  jq --arg cn "$context_name" '.name = $cn' "$local_profile_config" > "$tmp_json_file"
-  if [ "$(jq -r '.name' "$tmp_json_file" | wc -l)" -gt 0 ]; then
-    mv "$tmp_json_file" "$local_profile_config"
-  fi
-fi
+    echo "🔄 Switching to profile '${context_name}'..."
+    $DRY_RUN || rsync -a --delete "${PROFILE_DIR}/${context_name}/kubeconfig.d/" "${HOME}/.kube/contexts/" 2>/dev/null
+    $DRY_RUN || rsync -a --delete "${PROFILE_DIR}/${context_name}/ssh/" "${HOME}/.ssh/" 2>/dev/null
+    $DRY_RUN || cp "${PROFILE_DIR}/${context_name}/tool-versions" "${HOME}/.tool-versions" 2>/dev/null
+
+    "${HOME}/.local/bin/update-kubeconfig"
+
+    tmp_json_file="/tmp/local-profile.json"
+    jq --arg cn "$context_name" '.name = $cn' "$PROFILE_CONFIG" > "$tmp_json_file"
+    if [[ "$DRY_RUN" = false && -s "$tmp_json_file" ]]; then
+      mv "$tmp_json_file" "$PROFILE_CONFIG"
+    fi
+
+    echo "✅ Profile '${context_name}' activated."
+    ;;
+
+  restore)
+    echo "📂 Available backups:"
+    ls -1 "$BACKUP_DIR" | sort | tail -n 5
+
+    if [ -z "$2" ]; then
+      echo "Select a backup using fzf..."
+      backup_to_restore=$(ls -1 "$BACKUP_DIR" | sort | fzf)
+    else
+      backup_to_restore="$2"
+    fi
+
+    if [ ! -d "${BACKUP_DIR}/${backup_to_restore}" ]; then
+      echo "❌ Error: Backup '${backup_to_restore}' not found."
+      exit 1
+    fi
+
+    echo "🔄 Restoring backup '${backup_to_restore}'..."
+    $DRY_RUN || cp -r "${BACKUP_DIR}/${backup_to_restore}/." "$HOME/"
+
+    echo "✅ Configuration restored from '${backup_to_restore}'."
+    ;;
+
+  *)
+    echo "❌ Invalid command. Usage:"
+    echo "  $0 new <profile>           # Create a new profile"
+    echo "  $0 ls                      # List available profiles"
+    echo "  $0 use <profile>           # Activate a profile"
+    echo "  $0 restore <backup_id>     # Restore a backup"
+    echo "  $0 --dry-run <command>     # Test a command without executing"
+    exit 1
+    ;;
+esac

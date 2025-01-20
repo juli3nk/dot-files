@@ -5,7 +5,7 @@
   defaultBranch = main
 
 [push]
-  default = matching
+  default = matching  # Push all matching branches (branches with the same name on both local and remote)
 
 [core]
   editor = nvim
@@ -14,30 +14,36 @@
   symlinks = true
 
 [alias]
+  # Show all the current Git aliases, sorted
   alias = !git config -l | grep ^alias | cut -c 7- | sort
 
+  # Basic 'log' aliases with different formats for viewing commit history
   ls = log --pretty=format:'%C(yellow)%h%Cred%d%Creset %s %C(bold blue)[%an]%Creset' --decorate
   ll = log --pretty=format:'%C(yellow)%h%Cred%d%Creset %s %C(bold blue)[%an]%Creset' --decorate --numstat
   ld = log --color --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)[%an]%Creset'
   lds = log --color --pretty=format:'%Cred%h%Creset%C(yellow)%d%Cgreen(%ad)%Creset %s %C(bold blue)[%an]%Creset' --date=short
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)[%an]%Creset' --abbrev-commit --date=relative
+  lgi = log --oneline --graph --decorate --color=auto --abbrev-commit
 
-  new = !git log $1@{1}..$1@{0} "$@"
+  # Compare changes between two commits or branches (showing differences)
+  new = "!git log --oneline --graph $1..HEAD $@"
 
-  unadd = !git reset HEAD -- "$@"
-  unamend = reset --soft HEAD@{1}
-  undo = !git reset HEAD~1 --mixed
+  diffc = diff --color-words
 
-  # Show verbose output about tags, branches or remotes
-  tags = tag -l
-  branches = branch -a
   remotes = remote -v
 
-  # Amend the currently staged files to the latest commit
-  amend = commit --amend --reuse-message=HEAD
-
-  # Remove branches that have already been merged with master
-  # a.k.a. ‘delete merged’
+  branches = branch -a
+  branches-status = "!git branch -vv | grep ': gone]'"
+  new-branch = "!f() { git switch -c $1 && git push -u origin $1; }; f"
+  # Remove branches that have already been merged with master a.k.a. ‘delete merged’
   dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d; git remote -v update -p"
+
+  tags = tag -l
+
+  unadd = !git reset HEAD -- "$@"  # Unstage a file from the index (remove from staged area)
+  amend = commit --amend --reuse-message=HEAD  # Amend the last commit without changing the commit message
+  unamend = reset --soft HEAD@{1}  # Undo the last commit (but keep the changes in the staging area)
+  undo = reset HEAD~1 --mixed  # Undo the last commit and unstage changes
+  safe-undo = "!f() { echo 'Are you sure you want to undo? (y/n)'; read confirm; if [ \"$confirm\" = \"y\" ]; then git reset HEAD~1 --mixed; fi; }; f"
 
   contributors = shortlog --summary --numbered

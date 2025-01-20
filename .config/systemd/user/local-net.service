@@ -1,0 +1,14 @@
+[Unit]
+Description=Local Net Service
+After=docker.service network.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/local/net.env
+ExecStart=%h/.local/sbin/local-net
+Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

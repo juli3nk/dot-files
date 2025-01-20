@@ -1,15 +1,32 @@
 #!/usr/bin/env bash
 
+# Check for sudo privileges to ensure the user can run the script
+if ! sudo -v; then
+  echo "Error: You need sudo privileges to run this script."
+  exit 1
+fi
+
+# Loop through each entry in the journal logs filtered by wifi connection
 IFS=$'\n' ; for entry in $(sudo journalctl -o short-full -u NetworkManager | awk '/\(wifi\) .+ Connected/ { print $1, $2, $3, $4, "==>", $NF }' | sed 's/"//g' | sort -k2,2 -k3,3 | grep -E "^.{3} ${1}"); do
-  weekday="$(echo "$entry" | awk '{ print $1 }')"
-  hour="$(echo "$entry" | awk '{ print $3 }' | awk -F':' '{ print $1 }' | sed 's/^0//')"
+  # Extract the weekday (e.g., "Mon", "Tue", etc.)
+  weekday=$(echo "$entry" | awk '{ print $1 }')
 
-  if [ "$weekday" == "Sat" -o "$weekday" == "Sun" ]; then
+  # Extract the hour from the time field (third column)
+  # hour="$(echo "$entry" | awk '{ print $3 }' | awk -F':' '{ print $1 }' | sed 's/^0//')"
+  hour=$(echo "$entry" | awk '{ split($3, a, ":"); print a[1] }')
+  # Remove the leading zero from the hour (if exists)
+  hour=$((10#$hour))
+
+  # Skip entries from weekends (Saturday and Sunday)
+  if [[ "$weekday" == "Sat" || "$weekday" == "Sun" ]]; then
     continue
   fi
-  if [ "$hour" -lt 6 -o "$hour" -gt 18 ]; then
+
+  # Skip entries outside of business hours (6 AM to 6 PM)
+  if [[ "$hour" -lt 6 || "$hour" -gt 18 ]]; then
     continue
   fi
 
+  # Print the entry if it passes the checks
   echo "$entry"
 done

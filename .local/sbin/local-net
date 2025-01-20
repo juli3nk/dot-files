@@ -6,18 +6,38 @@ DOCKER_API_VERSION="1.41"
 DATA_DIR="${HOME}/Data/adguardhome"
 CONFIG_FILE_PATH="${HOME}/.config/local/net.json"
 
+CONTAINER_NAME="local-net"
 
-# Start local-net
-if [ ! -f "$CONFIG_FILE_PATH" ]; then
-  echo "config file does not exist"
+
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is not installed."
   exit 1
 fi
 
-mkdir -p ${DATA_DIR}/{work,conf}
+# Start local-net
+if [ ! -f "$CONFIG_FILE_PATH" ]; then
+  echo "Error: config file does not exist."
+  exit 1
+fi
 
-if [ "$(docker container ls | grep -c local-net)" -eq 0 ]; then
-  docker container run \
-    -d \
+mkdir -p "$DATA_DIR"/{work,conf}
+
+if [ "$(docker container ls --filter "name=${CONTAINER_NAME}" --quiet | wc -l)" -eq 0 ]; then
+  echo -e "Running container ${CONTAINER_NAME}"
+
+  if [ "$(grep -c "ID=nixos" /etc/os-release)" -eq 0 ]; then
+    # Configure resolv.conf
+    LOCAL_IP_DNS="$(jq -r '.ip_addresses.dns.ip_address' "$CONFIG_FILE_PATH")"
+
+    if ! grep "$LOCAL_IP_DNS" /etc/systemd/resolved.conf > /dev/null ; then
+      sudo sed -i -e 's/#DNSStubListener=yes/DNSStubListener=no/' -e "s/#DNS=/DNS=${LOCAL_IP_DNS}/" /etc/systemd/resolved.conf
+
+      sudo systemctl restart systemd-resolved
+    fi
+  fi
+
+  exec docker container run \
+    -t \
     --rm \
     --mount type=bind,src=/var/run/dbus,dst=/var/run/dbus \
     --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
@@ -30,20 +50,7 @@ if [ "$(docker container ls | grep -c local-net)" -eq 0 ]; then
     --security-opt apparmor=unconfined \
     --cap-add=NET_ADMIN \
     --env DOCKER_API_VERSION=$DOCKER_API_VERSION \
-    --name local-net \
+    --name "$CONTAINER_NAME" \
     juli3nk/local-net \
       -debug
-fi
-
-if [ "$(grep -c "ID=nixos" /etc/os-release)" -eq 1 ]; then
-  exit
-fi
-
-# Configure resolv.conf
-LOCAL_IP_DNS="$(jq -r '.ip_addresses.dns.ip_address' "$CONFIG_FILE_PATH")"
-
-if ! grep "$LOCAL_IP_DNS" /etc/systemd/resolved.conf > /dev/null ; then
-  sudo sed -i -e 's/#DNSStubListener=yes/DNSStubListener=no/' -e "s/#DNS=/DNS=${LOCAL_IP_DNS}/" /etc/systemd/resolved.conf
-
-  sudo systemctl restart systemd-resolved
 fi

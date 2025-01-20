@@ -1,5 +1,5 @@
 
-for_window [class="(?i)pavucontrol"] floating enable, resize set width 35 ppt height 45 ppt, move position 1230 px 80 px
+for_window [class="(?i)pwvucontrol"] floating enable, resize set width 35 ppt height 45 ppt, move position 1230 px 80 px
 for_window [class="(?i)blueman-manager"] floating enable, resize set width 25 ppt height 40 ppt, move position 1330 px 50 px
 for_window [class="(?i)vlc"] floating enable
 for_window [title="KeePassXC-Browser Confirm Access"] floating enable
