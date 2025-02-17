@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+vpn_dir="${HOME}/Vault/vpns"
+DRY_RUN=false
+
+if [[ "$1" == "-n" || "$1" == "--dry-run" ]]; then
+  DRY_RUN=true
+  echo "Dry-run mode enabled: No changes will be made."
+fi
+
+if [ ! -d "$vpn_dir" ]; then
+  echo "Error: VPN directory '${vpn_dir}' does not exist." >&2
+  exit 1
+fi
+
+echo "Cleaning up existing WireGuard connections..."
+nmcli connection show | awk '$3 == "wireguard" { print $1 }' | while read -r cc; do
+  if [ -n "$cc" ]; then
+    if "$DRY_RUN"; then
+      echo "[Dry-run] Would delete connection: $cc"
+    else
+      if nmcli connection delete "$cc"; then
+        echo "Deleted connection: $cc"
+      else
+        echo "Warning: Failed to delete $cc" >&2
+      fi
+    fi
+  fi
+done
+
+echo "Importing new WireGuard configurations..."
+find "$vpn_dir" -maxdepth 1 -name '*.conf' -print0 | while IFS= read -r -d '' file; do
+  base_name="${file##*/}"
+  base_name="${base_name%.conf}"
+  wg_name="wg-$base_name"
+
+  echo "Processing: $file"
+  if "$DRY_RUN"; then
+    echo "[Dry-run] Would import WireGuard config: $file"
+    echo "[Dry-run] Would set connection ID: $wg_name"
+    echo "[Dry-run] Would set interface name: $wg_name"
+  else
+    if nmcli connection import type wireguard file "$file"; then
+      nmcli connection modify "$base_name" connection.id "$wg_name"
+      nmcli connection modify "$wg_name" connection.interface-name "$wg_name"
+      echo "Configured: $wg_name"
+    else
+      echo "Error: Failed to import $file" >&2
+    fi
+  fi
+done
+
+if $DRY_RUN; then
+  echo "[Dry-run] Would reload network connections."
+else
+  nmcli connection reload
+  echo "WireGuard connections updated."
+fi
