@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+help() {
+  echo "Usage: $0 <scale> [output]"
+  echo ""
+  echo "Adjusts the display scaling for the current window manager (i3 or Sway)."
+  echo ""
+
+  case "$DE" in
+    i3)
+      echo "For i3 (xrandr), the scale value follows the format XxY, where:"
+      echo "  - '1x1' restores the default scale."
+      echo "  - '1.5x1.5' makes UI elements smaller (higher resolution effect)."
+      echo "  - '0.8x0.8' makes UI elements larger (lower resolution effect)."
+      echo ""
+      echo "Examples:"
+      echo "  $0 1x1      # Restore default scale"
+      echo "  $0 1.5x1.5  # Shrink text and UI"
+      echo "  $0 0.8x0.8  # Enlarge text and UI"
+      ;;
+    sway)
+      echo "For Sway (swaymsg), the scale value is a single number:"
+      echo "  - '1' restores the default scale."
+      echo "  - '1.5' makes UI elements larger."
+      echo "  - '0.8' makes UI elements smaller."
+      echo ""
+      echo "Examples:"
+      echo "  $0 1    # Restore default scale"
+      echo "  $0 1.5  # Enlarge text and UI"
+      echo "  $0 0.8  # Shrink text and UI"
+      ;;
+  esac
+
+  echo ""
+  echo "If no output is specified, the default display will be used."
+  exit 0
+}
+
+get_desktop_environment() {
+  local de
+  de=$(echo "${XDG_SESSION_DESKTOP:-}${XDG_CURRENT_DESKTOP:-}" | grep -oE 'i3|sway' | head -n 1)
+  echo "$de"
+}
+
+get_default_output() {
+  case "$DE" in
+    i3)
+      xrandr --query | grep ' connected' | awk '{ print $1 }' | head -n 1
+      ;;
+    sway)
+      swaymsg -t get_outputs | jq -r '.[] | select(.active) | .name' | head -n 1
+      ;;
+  esac
+}
+
+set_screen_scale() {
+  local output="$1"
+  local scale="$2"
+
+  case "$DE" in
+    i3)
+      xrandr --output "$output" --scale "$scale"
+      ;;
+    sway)
+      swaymsg output "$output" scale "$scale"
+      ;;
+  esac
+}
+
+
+DE="$(get_desktop_environment)"
+
+if [[ "$DE" != "i3" && "$DE" != "sway" ]]; then
+  echo "Unsupported desktop environment: $DE" >&2
+  exit 1
+fi
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  help
+fi
+
+OUTPUT="$2"
+if [ -z "$OUTPUT" ]; then
+  OUTPUT="$(get_default_output)"
+fi
+
+set_screen_scale "$OUTPUT" "$1"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+get_desktop_environment() {
+  echo "${XDG_SESSION_DESKTOP:-}${XDG_CURRENT_DESKTOP:-}" | grep -oE 'i3|sway' | head -n 1
+}
+
+DE=$(get_desktop_environment)
+
+if [[ "$DE" == "i3" ]]; then
+  PASTE_CMD="xclip -selection clipboard -o"
+elif [[ "$DE" == "sway" ]]; then
+  PASTE_CMD="wl-paste"
+else
+  echo "Error: Unknown or unsupported environment."
+  exit 1
+fi
+
+$PASTE_CMD

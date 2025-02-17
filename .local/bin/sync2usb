@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+CONFIG_FILE="${HOME}/.config/local/backup.json"
+LOG_FILE_SUFFIX=".usbackup.log"
+LOG_FILE="$(mktemp --suffix="$LOG_FILE_SUFFIX")"
+
+check_rsync_error() {
+  if [ $? -ne 0 ]; then
+    echo "Error: rsync failed during the backup operation."
+    exit 1
+  fi
+}
+
+if [ ! -f "$CONFIG_FILE" ]; then
+  echo "Error: Configuration file '$CONFIG_FILE' not found."
+  exit 1
+fi
+
+DST_PATH=$(jq -r '.mount' "$CONFIG_FILE")
+if [ -z "$DST_PATH" ] || [ "$DST_PATH" == "null" ]; then
+  echo "Error: Destination path not found in config file."
+  exit 1
+fi
+
+if ! mountpoint -q "$DST_PATH"; then
+  echo "Error: Destination path '$DST_PATH' is not mounted."
+  exit 1
+fi
+
+if [ ! -d "$DST_PATH" ]; then
+  echo "Error: Destination path '$DST_PATH' does not exist."
+  exit 1
+fi
+
+ARG_DRY_RUN="${1:-true}"
+dry_run="--dry-run"
+if [ "$ARG_DRY_RUN" != "true" ]; then
+  dry_run=""
+fi
+
+if [ -f "/tmp/tmp.*${LOG_FILE_SUFFIX}" ]; then
+  rm /tmp/tmp.*${LOG_FILE_SUFFIX}
+fi
+
+RSYNC_OPTIONS="-auv --progress"
+
+jq -c '.dirs[]' "$CONFIG_FILE" | while read dir; do
+  SRC_PATH=$(echo "$dir" | jq -r '.path')
+  DELETE_OPTION=$(echo "$dir" | jq -r '.delete')
+  EXCLUDES=$(echo "$dir" | jq -c '.excludes // []')
+
+  if [ "$SRC_PATH" == "null" ] || [ -z "$SRC_PATH" ]; then
+    echo "Warning: Invalid source path in configuration, skipping."
+    continue
+  fi
+
+  RSYNC_CMD="$RSYNC_OPTIONS"
+  [ "$DELETE_OPTION" == "true" ] && RSYNC_CMD+=" --delete"
+
+  EXCLUDE_PARAMS=""
+  for exclude in $(echo "$EXCLUDES" | jq -r '.[]'); do
+    EXCLUDE_PARAMS+=" --exclude='$exclude'"
+  done
+
+  eval rsync $RSYNC_CMD $dry_run $EXCLUDE_PARAMS "$SRC_PATH" "$DST_PATH/" 2>&1 | tee -a "$LOG_FILE"
+  check_rsync_error
+
+done
+
+echo "Backup process completed. Log file: $LOG_FILE"

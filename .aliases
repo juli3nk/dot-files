@@ -13,10 +13,10 @@ alias xargs='xargs -I {}'
 alias awkvars="awk --dump-variables '' && cat awkvars.out && rm awkvars.out"
 
 # copy working directory
-alias cwd='pwd | tr -d "\r\n" | xclip -selection clipboard'
+alias cwd='pwd | tr -d "\r\n" | xwcopy'
 
 # Pipe my public key to my clipboard.
-alias pubkey="cat ~/.ssh/id_rsa.pub | xclip -selection clipboard && echo '=> Public key copied to clipboard.'"
+alias pubkey="cat ~/.ssh/id_rsa.pub | xwcopy && echo '=> Public key copied to clipboard.'"
 
 alias showmount='mount | column -t'
 
