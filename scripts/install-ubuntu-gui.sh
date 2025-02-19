@@ -148,6 +148,7 @@ if [ "$1" == "sway" ]; then
     swaylock \
     grimshot \
     mako-notifier \
+    wlsunset \
     xdg-desktop-portal-wlr
 fi
 

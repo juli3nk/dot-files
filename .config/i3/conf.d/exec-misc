@@ -1,6 +1,8 @@
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
+# To list autostart programs for i3 environment:
+# dex -ad -e i3
 exec --no-startup-id dex --autostart --environment i3
 
 #exec --no-startup-id setxkbmap -model pc104 -layout us,fr -option grp:alt_shift_toggle -option ctrl:nocaps

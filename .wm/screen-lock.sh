@@ -44,7 +44,7 @@ log() {
 }
 
 get_desktop_environment() {
-  echo "$XDG_SESSION_DESKTOP" "$XDG_CURRENT_DESKTOP" | grep -oE 'i3|sway' | head -n 1
+  echo "${XDG_SESSION_DESKTOP:-}${XDG_CURRENT_DESKTOP:-}" | grep -oE 'i3|sway' | head -n 1
 }
 
 create_music_state() {

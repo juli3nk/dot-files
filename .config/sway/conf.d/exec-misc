@@ -1,7 +1,14 @@
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
-exec --no-startup-id dex --autostart --environment i3
+# To list autostart programs for sway environment:
+# dex -ad -e sway
+exec --no-startup-id dex --autostart --environment sway
+
+# find /nix/store/ -name 'polkit-mate-authentication-agent-1'
+exec --no-startup-id /nix/store/jh6vzjvkidpj1ypqh7kgbkzmisw2fi0l-mate-polkit-1.28.1/libexec/polkit-mate-authentication-agent-1
 
 exec mako
 exec mkfifo $SWAYSOCK.wob && tail -f $SWAYSOCK.wob | wob
+
+exec --no-startup-id wlsunset -l 48.856614 -L 2.3522219
