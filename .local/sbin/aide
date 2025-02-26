@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+AIDE_PATH="/var/lib/aide"
+CONFIG_PATH="${AIDE_PATH}/etc/aide.conf"
+DB_FILE="${AIDE_PATH}/data/aide.db"
+
+if ! command -v aide &>/dev/null; then
+  echo "Error: aide is not installed."
+  exit 1
+fi
+
+if [ ! -f "$DB_FILE" ]; then
+  sudo mkdir -p "$AIDE_PATH"/{etc,data}
+
+  cat << EOF | sudo tee "$CONFIG_PATH"
+database_in=file:${DB_FILE}
+database_out=file:${DB_FILE}.new
+database_new=file:${DB_FILE}.new
+
+# Vérifier les fichiers systèmes importants
+/etc p+sha512
+/boot p+sha512
+
+# Surveiller les liens symboliques vers les binaires
+/usr/local/bin p+sha512
+/run/current-system/sw/bin p+sha512
+
+# Vérifier les fichiers spécifiques dans /nix/store (attention : immuable sauf mise à jour)
+# On peut surveiller les binaires critiques si besoin :
+/nix/store/*/bin p+sha512
+/nix/store/*/lib p+sha512
+EOF
+
+  sudo aide --config "$CONFIG_PATH" --init
+  sudo mv "${DB_FILE}.new" "$DB_FILE"
+fi
+
+if [ $# -gt 0 ]; then
+  sudo aide --config "$CONFIG_PATH" "$@"
+else
+  sudo aide --config "$CONFIG_PATH" --check
+fi

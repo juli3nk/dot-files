@@ -40,3 +40,5 @@ alias diskusage='sudo du -ak --max-depth=1 2> /dev/null | sort -n'
 alias sync-time='sudo chronyc makestep'
 
 alias k='kubectl'
+
+alias lynis-audit='lynis audit system'

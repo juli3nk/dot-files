@@ -1,0 +1,7 @@
+[Unit]
+Description=Check integrity with AIDE
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/sbin/aide

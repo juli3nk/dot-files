@@ -21,6 +21,7 @@ fi
 declare -a apps=(
   "age"
   "bat;https://github.com/juli3nk/asdf-bat.git"
+  "bottom"
   "cosign"
   "ctop"
   "dagger"

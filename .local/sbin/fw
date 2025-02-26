@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+CONFIG_FILE_PATH="${HOME}/.config/local/net.json"
+
+# Table de redirection vers VPN
+TABLE_NAME="vpn_control"
+
+get_local_net() {
+    local local_net_addr="$(jq -r '.ip_addresses.dns.ip_address' "$CONFIG_FILE_PATH")"
+    local local_net_netmask="$(jq -r '.ip_addresses.dns.netmask' "$CONFIG_FILE_PATH")"
+
+    ipcalc "$local_net_addr" "$local_net_netmask" | awk '/Network:/ { print $2 }'
+}
+
+get_home_wifi_net() {
+    local wifi_home="$(jq -r '.wifi.home' "$CONFIG_FILE_PATH")"
+    local wifi_current="$(nmcli c show --active | awk '/wifi/ { print $1 }')"
+
+    if [ "$wifi_home" != "none" ] && [ "$wifi_current" == "$wifi_home" ]; then
+      local inf="$(ls -1 /sys/class/net/ | awk '/^wl/ { print $1 }')"
+      local network="$(ip addr show "$inf" | grep "inet" | awk '/dynamic/ { print $2 }' | xargs -I'{}' ipcalc {} | awk '/Network:/ { print $2 }')"
+
+      if [ -n "$network" ]; then
+        echo "$network"
+      fi
+    fi
+}
+# Fonction pour activer la redirection du trafic vers le VPN
+enable_vpn_routing() {
+    sudo nft -f /etc/nftables.conf
+    echo "Redirection du trafic vers le VPN activée."
+}
+
+# Fonction pour désactiver la redirection du trafic vers le VPN
+disable_vpn_routing() {
+    # Supprimer la table de redirection (cela "désactive" la redirection)
+    sudo nft flush table inet $TABLE_NAME
+    echo "Redirection du trafic vers le VPN désactivée."
+}
+
+if ! command -v ipcalc &>/dev/null; then
+  echo "Error: ipcalc is not installed."
+  exit 1
+fi
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is not installed."
+  exit 1
+fi
+
+if [ ! -f "$CONFIG_FILE_PATH" ]; then
+  echo "Error: config file does not exist."
+  exit 1
+fi
+
+case "$1" in
+    net)
+        lans=()
+
+        local_net="$(get_local_net)"
+        if [ -n "$local_net" ]; then
+            lans+=("$local_net")
+        fi
+
+        home_wifi_net="$(get_home_wifi_net)"
+        if [ -n "$home_wifi_net" ]; then
+            lans+=("$home_wifi_net")
+        fi
+
+        lans_str=""
+        for net in ${lans[@]}; do
+          if [ -z "$lans_str" ]; then
+            lans_str="$net"
+          else
+            lans_str="${lans_str}, ${net}"
+          fi
+        done
+
+        sudo nft add element inet fw lan_v4 { "$lans_str" }
+        ;;
+    vpn)
+        case "$2" in
+            enable)
+                enable_vpn_routing
+                ;;
+            disable)
+                disable_vpn_routing
+                ;;
+        esac
+        ;;
+    *)
+        echo "Usage: $0 {vpn|net}"
+        exit 1
+        ;;
+esac
