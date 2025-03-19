@@ -4,7 +4,7 @@ After=docker.service network.target
 
 [Service]
 Type=simple
-EnvironmentFile=%h/.config/local/net.env
+EnvironmentFile=%h/.config/local/local.env
 ExecStart=%h/.local/sbin/local-net
 Restart=on-failure
 StandardOutput=journal

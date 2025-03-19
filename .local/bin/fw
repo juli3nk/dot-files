@@ -12,6 +12,10 @@ get_local_net() {
     ipcalc "$local_net_addr" "$local_net_netmask" | awk '/Network:/ { print $2 }'
 }
 
+get_docker_net() {
+  docker network inspect --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' bridge
+}
+
 get_home_wifi_net() {
     local wifi_home="$(jq -r '.wifi.home' "$CONFIG_FILE_PATH")"
     local wifi_current="$(nmcli c show --active | awk '/wifi/ { print $1 }')"
@@ -59,6 +63,11 @@ case "$1" in
         local_net="$(get_local_net)"
         if [ -n "$local_net" ]; then
             lans+=("$local_net")
+        fi
+
+        docker_net="$(get_docker_net)"
+        if [ -n "$docker_net" ]; then
+            lans+=("$docker_net")
         fi
 
         home_wifi_net="$(get_home_wifi_net)"

@@ -135,7 +135,7 @@ sudo apt install --no-install-recommends --yes \
   gping \          # Interactive ping tool, with graph
   glances \        # Resource monitor + web and API
   goaccess \       # Web log analyzer and viewer
-  speedtest-cli    # Command line speed test utility
+  speedtest-cli \  # Command line speed test utility
 
   # CLI Power Basics
   aria2 \          # Resuming download util (better wget)

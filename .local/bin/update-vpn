@@ -43,6 +43,8 @@ find "$vpn_dir" -maxdepth 1 -name '*.conf' -print0 | while IFS= read -r -d '' fi
     if nmcli connection import type wireguard file "$file"; then
       nmcli connection modify "$base_name" connection.id "$wg_name"
       nmcli connection modify "$wg_name" connection.interface-name "$wg_name"
+      nmcli connection modify "$wg_name" connection.autoconnect no
+      nmcli connection down "$wg_name"
       echo "Configured: $wg_name"
     else
       echo "Error: Failed to import $file" >&2
