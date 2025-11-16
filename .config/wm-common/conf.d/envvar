@@ -1,0 +1,11 @@
+
+exec systemctl --user import-environment \
+  DISPLAY \
+  WAYLAND_DISPLAY \
+  XDG_CURRENT_DESKTOP \
+  DBUS_SESSION_BUS_ADDRESS
+exec dbus-update-activation-environment --systemd \
+  DISPLAY \
+  WAYLAND_DISPLAY \
+  XDG_CURRENT_DESKTOP \
+  DBUS_SESSION_BUS_ADDRESS

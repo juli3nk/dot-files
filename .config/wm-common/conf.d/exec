@@ -2,5 +2,4 @@
 # Exec
 #
 
-exec udiskie -F
 #exec --no-startup-id libinput-gestures

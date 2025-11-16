@@ -4,3 +4,5 @@ for_window [class="(?i)blueman-manager"] floating enable, resize set width 25 pp
 for_window [class="(?i)vlc"] floating enable
 for_window [title="KeePassXC-Browser Confirm Access"] floating enable
 for_window [title="KeePassXC - Browser Access Request"] floating enable
+for_window [title="File Operation Progress"] floating enable
+for_window [title="Rename"] floating enable

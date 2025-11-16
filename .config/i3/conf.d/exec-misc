@@ -7,7 +7,3 @@ exec --no-startup-id dex --autostart --environment i3
 
 #exec --no-startup-id setxkbmap -model pc104 -layout us,fr -option grp:alt_shift_toggle -option ctrl:nocaps
 exec --no-startup-id setxkbmap -model pc104 -layout fr -option ctrl:nocaps
-
-exec --not-startup-id /usr/lib/x86_64-linux-gnu/polkit-mate/polkit-mate-authentication-agent-1
-
-exec --not-startup-id redshift -l 48.856614:2.3522219 -m randr

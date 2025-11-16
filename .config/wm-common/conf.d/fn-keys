@@ -14,5 +14,5 @@ bindsym XF86AudioNext exec $HOME/.wm/playerctl.sh next
 bindsym XF86AudioPrev exec $HOME/.wm/playerctl.sh prev
 
 # screen brightness controls
-bindsym XF86MonBrightnessUp exec sudo brightnessctl -q set +5%
-bindsym XF86MonBrightnessDown exec sudo brightnessctl -q set 5%-
+bindsym XF86MonBrightnessUp exec lightctl up
+bindsym XF86MonBrightnessDown exec lightctl down
