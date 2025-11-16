@@ -6,7 +6,7 @@ export VISUAL="nvim"
 export LESS="-R"
 
 export PAGER="less"
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPAGER="less -R"
 export DELTA_PAGER="less -R" # enable scrolling in git diff
 
 # don't put duplicate lines or lines starting with space in the history.

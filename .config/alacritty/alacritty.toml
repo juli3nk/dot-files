@@ -1,5 +1,6 @@
-import = ["~/.config/alacritty/catppuccin-mocha.toml"]
+[general]
 live_config_reload = true
+import = ["~/.config/alacritty/catppuccin-mocha.toml"]
 
 [bell]
 command = "None"

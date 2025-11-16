@@ -28,6 +28,9 @@
   # Compare changes between two commits or branches (showing differences)
   new = "!git log --oneline --graph $1..HEAD $@"
 
+  # slog = "!git log --pretty=format:"%h %G? %an %s""
+  slog = log --show-signature
+
   diffc = diff --color-words
 
   remotes = remote -v

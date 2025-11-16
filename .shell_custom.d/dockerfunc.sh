@@ -70,3 +70,37 @@ shfmt() {
     --mount type=bind,src="${PWD}",dst=/mnt,ro \
     juli3nk/shfmt "$@"
 }
+ollama_server() {
+  local image="ollama/ollama"
+  local data_dir="${HOME}/Data/ollama"
+
+  mkdir -p "$data_dir"
+  docker image pull "$image"
+  docker container run \
+    -d \
+    --rm \
+    --mount type=bind,src="$data_dir",dst=/root/.ollama \
+    -p 11434:11434 \
+    --name ollama \
+    "$image"
+}
+ollama() {
+  docker container exec \
+    -ti \
+    ollama "$@"
+}
+open_webui() {
+  #     -e OLLAMA_BASE_URL=http://192.168.1.97:11434 \
+  local image="ghcr.io/open-webui/open-webui:main"
+  local data_dir="${HOME}/Data/open-webui"
+
+  mkdir -p "$data_dir"
+  docker image pull "$image"
+  docker container run \
+    -d \
+    --rm \
+    --mount type=bind,src="$data_dir",dst=/app/backend/data \
+    -p 3000:8080 \
+    --name open-webui \
+    "$image"
+}

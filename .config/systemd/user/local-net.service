@@ -2,13 +2,18 @@
 Description=Local Net Service
 After=docker.service network.target
 
+ConditionPathExists=%h/.config/local/local.env
+ConditionPathExists=%h/.local/sbin/local-net
+
+[Install]
+WantedBy=default.target
+
 [Service]
 Type=simple
 EnvironmentFile=%h/.config/local/local.env
 ExecStart=%h/.local/sbin/local-net
+ExecStop=docker container stop local-net
 Restart=on-failure
+TimeoutStopSec=10
 StandardOutput=journal
 StandardError=journal
-
-[Install]
-WantedBy=default.target

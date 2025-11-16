@@ -15,9 +15,6 @@ alias awkvars="awk --dump-variables '' && cat awkvars.out && rm awkvars.out"
 # copy working directory
 alias cwd='pwd | tr -d "\r\n" | xwcopy'
 
-# Pipe my public key to my clipboard.
-alias pubkey="cat ~/.ssh/id_rsa.pub | xwcopy && echo '=> Public key copied to clipboard.'"
-
 alias showmount='mount | column -t'
 
 alias wget='wget -c'
@@ -42,3 +39,5 @@ alias sync-time='sudo chronyc makestep'
 alias k='kubectl'
 
 alias lynis-audit='lynis audit system'
+
+alias pubkey="cat ~/.ssh/id_rsa.pub | xwcopy && echo '=> Public key copied to clipboard.'"
