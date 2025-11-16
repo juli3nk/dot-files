@@ -1,0 +1,13 @@
+[Unit]
+Description=Battery monitoring
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/local/local.env
+ExecStart=%h/.local/sbin/battery-watch
+Restart=always
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

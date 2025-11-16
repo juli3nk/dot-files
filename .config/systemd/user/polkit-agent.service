@@ -1,0 +1,14 @@
+[Unit]
+Description=PolicyKit Authentication Agent (mate-polkit)
+After=graphical.target
+PartOf=graphical.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/local/local.env
+ExecStart=%h/.local/sbin/polkit-agent
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

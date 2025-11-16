@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+THRESHOLD=10
+
+upower_battery_path="$(upower -e | grep BAT)"
+
+command_exists() {
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
+}
+
+
+for cmd in notify-send upower; do
+  command_exists "$cmd"
+done
+
+upower --monitor --monitor| while read -r line; do
+  if echo "$line" | grep -q "$upower_battery_path"; then
+    battery_state="$(upower -i "$upower_battery_path" | awk '/state/ { print $2 }')"
+    battery_level="$(upower -i "$upower_battery_path" | awk '/percentage/ { print $2 }' | sed 's/%//')"
+
+    if [[ "$battery_state" == "discharging" && "$battery_level" -lt "$THRESHOLD" ]]; then
+      echo "Low battery (${battery_level}%) - Going to sleep..."
+
+      notify-send "Battery Alert" "Low battery: ${battery_level}% - Suspending soon!" -u critical
+      sleep 30
+
+      battery_state="$(upower -i "$upower_battery_path" | awk '/state/ { print $2 }')"
+      if [ "$battery_state" == "discharging" ]; then
+        ${HOME}/.wm/suspend-hibernate.sh
+      fi
+    fi
+  fi
+done

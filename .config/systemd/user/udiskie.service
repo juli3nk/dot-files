@@ -1,0 +1,11 @@
+[Unit]
+Description=Udiskie automounter
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=udiskie -F
+Restart=always
+
+[Install]
+WantedBy=graphical-session.target
