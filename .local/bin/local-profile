@@ -6,6 +6,18 @@ BACKUP_DIR="${HOME}/Vault/backups"
 
 DRY_RUN=false
 
+command_exists() {
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
+}
+
+
+for cmd in jq rsync; do
+  command_exists "$cmd"
+done
+
 # Enable dry-run mode if the option is provided
 if [ "$1" == "--dry-run" ]; then
   DRY_RUN=true

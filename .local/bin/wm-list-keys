@@ -1,16 +1,31 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-TMP_FILE="/tmp/wm-list-keys"
+. "${HOME}/.local/lib/de.sh"
 
+DE="$(get_desktop_environment)"
+is_desktop_environment_supported "$DE"
 
-if [ "$XDG_SESSION_DESKTOP" == "sway" -o "$XDG_CURRENT_DESKTOP" == "sway" ]; then
-	desktop="sway"
-fi
-if [ "$XDG_SESSION_DESKTOP" == "i3" -o "$XDG_CURRENT_DESKTOP" == "i3" ]; then
-	desktop="i3"
-fi
+TMP_FILE="$(mktemp /tmp/wm-list-keys.XXXXXX)"
+trap 'rm -f "$TMP_FILE"' EXIT
 
-grep "bindsym \$mod" "${HOME}/.config/${desktop}/config" > "$TMP_FILE"
-grep "bindsym \$mod" ${HOME}/.config/wm/conf.d/* | awk -F':' '{ print $2, "(" $1 ")" }' >> "$TMP_FILE"
+# Extraction des raccourcis
+{
+  [[ -f "${HOME}/.config/${DE}/config" ]] &&
+    grep --no-messages "bindsym \$mod" "${HOME}/.config/${DE}/config"
 
-grep -Ev "workspace" "$TMP_FILE" | sed -e 's/bindsym //' | sort
+  grep --no-messages "bindsym \$mod" "${HOME}/.config/wm/conf.d/"* \
+    | awk -F':' '{ print $2, "(" $1 ")" }'
+} > "$TMP_FILE"
+
+# Nettoyage et formatage
+grep -Ev "workspace" "$TMP_FILE" \
+  | sed -E 's/^bindsym[[:space:]]+//' \
+  | column -t -s $'\t' \
+  | awk '{
+      key=$1;
+      $1="";
+      sub(/^[ \t]+/, "");
+      printf "%-25s %s\n", key, $0
+    }' \
+  | sort -k1,1

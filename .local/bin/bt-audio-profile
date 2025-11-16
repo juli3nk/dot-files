@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+DEVICE_NAME="casque_bluetooth"  # Change avec le nom du périphérique (`pactl list sinks short`)
+
+CURRENT_PROFILE=$(pactl list cards | grep -A 20 "$DEVICE_NAME" | grep "Active Profile" | awk -F': ' '{print $2}')
+
+if [[ "$CURRENT_PROFILE" == *"a2dp_sink"* ]]; then
+    pactl set-card-profile "$DEVICE_NAME" handset-head-unit
+    notify-send "🎙️ Mode Microphone Activé (HFP)"
+else
+    pactl set-card-profile "$DEVICE_NAME" a2dp_sink
+    notify-send "🎶 Mode Audio Haute Qualité (A2DP)"
+fi

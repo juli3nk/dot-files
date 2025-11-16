@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+command_exists() {
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
+}
+
 mpc() {
   docker container exec -t mpd mpc "$@" 2> /dev/null
 }
@@ -62,6 +69,9 @@ player() {
   esac
 }
 
-player "$1"
 
-exit 0
+for cmd in playerctl; do
+  command_exists "$cmd"
+done
+
+player "$1"

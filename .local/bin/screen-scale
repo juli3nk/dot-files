@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. "${HOME}/.local/lib/de.sh"
+
 help() {
   echo "Usage: $0 <scale> [output]"
   echo ""
@@ -36,12 +38,6 @@ help() {
   exit 0
 }
 
-get_desktop_environment() {
-  local de
-  de=$(echo "${XDG_SESSION_DESKTOP:-}${XDG_CURRENT_DESKTOP:-}" | grep -oE 'i3|sway' | head -n 1)
-  echo "$de"
-}
-
 get_default_output() {
   case "$DE" in
     i3)
@@ -69,11 +65,7 @@ set_screen_scale() {
 
 
 DE="$(get_desktop_environment)"
-
-if [[ "$DE" != "i3" && "$DE" != "sway" ]]; then
-  echo "Unsupported desktop environment: $DE" >&2
-  exit 1
-fi
+is_desktop_environment_supported "$DE"
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   help
