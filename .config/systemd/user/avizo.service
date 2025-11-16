@@ -1,0 +1,14 @@
+[Unit]
+Description=Avizo OSD Daemon
+After=graphical.target
+PartOf=graphical.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/local/local.env
+ExecStart=/bin/sh -c 'avizo-service'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

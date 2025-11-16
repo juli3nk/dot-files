@@ -1,0 +1,13 @@
+[Unit]
+Description=Sway Notification Center
+After=graphical.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/local/local.env
+ExecStart=%h/.local/sbin/swaync
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

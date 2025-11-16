@@ -1,0 +1,17 @@
+[Unit]
+Description=Day/night gamma adjustments
+PartOf=graphical-session.target
+After=graphical-session.target
+
+ConditionPathExists=%h/.local/sbin/redwlsun
+
+[Install]
+WantedBy=graphical-session.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/local/local.env
+ExecStart=%h/.local/sbin/redwlsun
+Slice=session.slice
+Restart=on-failure
+RestartSec=3s

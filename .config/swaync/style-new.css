@@ -1,0 +1,53 @@
+/* Base styles */
+window {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: #ffffff;
+    border: 2px solid #00BFA6;
+    border-radius: 8px;
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+}
+
+/* Notification titles */
+.title {
+    color: #00BFA6;
+    font-weight: bold;
+}
+
+/* Body text */
+.body {
+    color: #ffffff;
+}
+
+/* Buttons */
+button {
+    background-color: #00BFA6;
+    color: #000000;
+    border-radius: 5px;
+    padding: 4px 8px;
+}
+button:hover {
+    background-color: #00a891;
+}
+
+/* Urgency levels */
+.low {
+    border-left: 4px solid #00BFA6;
+}
+.normal {
+    border-left: 4px solid #00BFA6;
+}
+.critical {
+    border-left: 4px solid #ff5555;
+}
+
+/* Close button */
+.close {
+    color: #ffffff;
+}
+.close:hover {
+    color: #00BFA6;
+}
+
+.toggle:checked {
+  background-color: #008080;
+}

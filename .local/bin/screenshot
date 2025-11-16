@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+save_dir="$(xdg-user-dir PICTURES)"
+timestamp="$(date +'%Y%m%d_%H%M%S')"
+filename="${save_dir}/${timestamp}_grim.png"
+
+command_exists() {
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
+}
+
+choose_screen() {
+  # Récupère la liste des écrans actifs (names)
+  screens=$(swaymsg -t get_outputs | jq -r '.[] | select(.active == true) | .name')
+
+  # Choix via fuzzel
+  chosen=$(printf "%s\n" $screens | fuzzel --dmenu --prompt "Choose screen:")
+  echo "$chosen"
+}
+
+
+for cmd in grim jq; do
+  command_exists "$cmd"
+done
+
+choice=$(printf \
+  "🖥️\tFullscreen → File\n📋\tFullscreen → Clipboard\n🖥️📋\tFullscreen → File + Clipboard\n🖵\tChoose screen → File\n🖵📋\tChoose screen → Clipboard\n🗔\tWindow → File\n🗔📋\tWindow → Clipboard\n🔲\tRegion → File\n🔲📋\tRegion → Clipboard\n🔠\tOCR (EN)\n🔡\tOCR (FR)" \
+  | fuzzel --dmenu --prompt "Screenshot:")
+
+case "$choice" in
+  *"Fullscreen → File")
+    grim "$filename"
+    notify "Fullscreen screenshot saved"
+    ;;
+  *"Fullscreen → Clipboard")
+    grim - | xwcopy
+    notify "Fullscreen screenshot copied to clipboard"
+    ;;
+  *"Fullscreen → File + Clipboard")
+    grim "$filename" && x`wcopy <"$filename"
+    notify "Fullscreen screenshot saved and copied"
+    ;;
+  *"Choose screen → File")
+    screen=$(choose_screen)
+    if [[ -n "$screen" ]]; then
+      grim -o "$screen" "$filename"
+      notify "Screenshot of screen '${screen}' saved"
+    else
+      notify "No screen selected, aborting"
+    fi
+    ;;
+  *"Choose screen → Clipboard")
+    screen=$(choose_screen)
+    if [[ -n "$screen" ]]; then
+      grim -o "$screen" - | xwcopy
+      notify "Screenshot of screen '${screen}' copied to clipboard"
+    else
+      notify "No screen selected, aborting"
+    fi
+    ;;
+  *"Window → File")
+    grim -g "$(swaymsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).rect | "\(.x),\(.y) \(.width)x\(.height)"')" "$filename"
+    notify "Window screenshot saved"
+    ;;
+  *"Window → Clipboard")
+    grim -g "$(swaymsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).rect | "\(.x),\(.y) \(.width)x\(.height)"')" - | xwcopy
+    notify "Window screenshot copied to clipboard"
+    ;;
+  *"Region → File")
+    grim -g "$(slurp)" "$filename"
+    notify "Region screenshot saved"
+    ;;
+  *"Region → Clipboard")
+    grim -g "$(slurp)" - | xwcopy
+    notify "Region screenshot copied to clipboard"
+    ;;
+  *"OCR (EN)")
+    grim -g "$(slurp)" - | tesseract -l eng - stdout | xwcopy -n
+    notify "OCR (English) completed"
+    ;;
+  *"OCR (FR)")
+    grim -g "$(slurp)" - | tesseract -l fra - stdout | xwcopy -n
+    notify "OCR (Fremch) completed"
+    ;;
+esac

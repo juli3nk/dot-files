@@ -1,0 +1,3 @@
+
+# Toggle control center
+bindsym $mod+Shift+n exec swaync-client -t -sw

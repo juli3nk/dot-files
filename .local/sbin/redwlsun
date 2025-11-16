@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+. "${HOME}/.local/lib/de.sh"
+
+LOCATION_CONFIG_FILE_PATH="${HOME}/.config/local/location.json"
+
+wl-sunset() {
+  local lat="$1"
+  local lon="$2"
+  local log_tag="[wlsunset]"
+
+  wlsunset -l "$lat" -L "$lon" -t 3000 2>&1 | while IFS= read -r line; do
+      echo "${log_tag} ${line}"
+
+      # Détection : les lignes de wlsunset contiennent souvent la température, ex:
+      # "setting temperature to 6500 K"
+      if [[ "$line" =~ [Ss]etting\ temperature\ to\ ([0-9]+)\ K ]]; then
+          temp="${BASH_REMATCH[1]}"
+
+          # notify-send -t 2000 "wlsunset" "Temperature set to ${temp} K"
+      fi
+  done
+}
+
+
+DE=$(get_desktop_environment)
+is_desktop_environment_supported "$DE"
+
+lat="$(jq -r '.lat' "$LOCATION_CONFIG_FILE_PATH" 2> /dev/null || exit 1)"
+lon="$(jq -r '.lon' "$LOCATION_CONFIG_FILE_PATH" 2> /dev/null || exit 1)"
+
+case "$DE" in
+  i3)
+    redshift -m randr -l "${lat}:${lon}"
+    ;;
+  sway)
+    wl-sunset "$lat" "$lon"
+    ;;
+esac

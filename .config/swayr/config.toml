@@ -1,0 +1,14 @@
+[menu]
+executable = 'fuzzel'
+args = [
+  '--dmenu',
+  '--prompt=🪟❯ ',
+  '--width=50',
+  '--font=Hack Nerd Font Mono:style=Bold:size=18',
+  '--line-height=28',
+]
+
+[format]
+workspace_format = '{indent}<b>Workspace {name} [{layout}]</b>    <span alpha="20000">({id})</span>'
+window_format = "{app_name:{:<11.11}} “{title:{:<60.60}...}” {id:{:<3.3}} on {workspace_name:{:<13.13}}\u0000icon\u001f{app_icon}"
+indent = '    '

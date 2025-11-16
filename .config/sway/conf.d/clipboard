@@ -1,0 +1,2 @@
+
+bindsym $mod+Shift+v exec cliphist menu
