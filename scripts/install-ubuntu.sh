@@ -145,6 +145,7 @@ sudo apt install --no-install-recommends --yes \
   hyperfine \      # Benchmarking for arbitrary commands
   just \           # Powerful command runner (better make)
   jq \             # JSON parser, output and query files
+  moreutils \      # More utilities for manipulating files
   most \           # Multi-window scroll pager (better less)
   procs \          # Advanced process viewer (better ps)
   ripgrep \        # Searching within files (better grep)

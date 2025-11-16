@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
+. "${HOME}/.local/lib/log.sh"
+
 CONFIG_FILE_PATH="${HOME}/.config/local/net.json"
 
 # Table de redirection vers VPN
 TABLE_NAME="vpn_control"
+
+command_exists() {
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
+}
 
 get_local_net() {
     local local_net_addr="$(jq -r '.ip_addresses.dns.ip_address' "$CONFIG_FILE_PATH")"
@@ -29,6 +38,7 @@ get_home_wifi_net() {
       fi
     fi
 }
+
 # Fonction pour activer la redirection du trafic vers le VPN
 enable_vpn_routing() {
     sudo nft -f /etc/nftables.conf
@@ -38,18 +48,14 @@ enable_vpn_routing() {
 # Fonction pour désactiver la redirection du trafic vers le VPN
 disable_vpn_routing() {
     # Supprimer la table de redirection (cela "désactive" la redirection)
-    sudo nft flush table inet $TABLE_NAME
+    sudo nft flush table inet "$TABLE_NAME"
     echo "Redirection du trafic vers le VPN désactivée."
 }
 
-if ! command -v ipcalc &>/dev/null; then
-  echo "Error: ipcalc is not installed."
-  exit 1
-fi
-if ! command -v jq &>/dev/null; then
-  echo "Error: jq is not installed."
-  exit 1
-fi
+
+for cmd in docker ipcalc jq nft; do
+  command_exists "$cmd"
+done
 
 if [ ! -f "$CONFIG_FILE_PATH" ]; then
   echo "Error: config file does not exist."
@@ -97,7 +103,7 @@ case "$1" in
         esac
         ;;
     *)
-        echo "Usage: $0 {vpn|net}"
+        echo "Usage: ${0} {vpn|net}"
         exit 1
         ;;
 esac

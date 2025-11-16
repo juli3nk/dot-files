@@ -4,10 +4,17 @@ AIDE_PATH="/var/lib/aide"
 CONFIG_PATH="${AIDE_PATH}/etc/aide.conf"
 DB_FILE="${AIDE_PATH}/data/aide.db"
 
-if ! command -v aide &>/dev/null; then
-  echo "Error: aide is not installed."
-  exit 1
-fi
+command_exists() {
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
+}
+
+
+for cmd in aide; do
+  command_exists "$cmd"
+done
 
 if [ ! -f "$DB_FILE" ]; then
   sudo mkdir -p "$AIDE_PATH"/{etc,data}

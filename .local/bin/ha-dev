@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-# ANSI color codes
-reset="\e[0m"
-red="\e[1;31m"
-blue="\e[1;34m"
-orange="\e[38;5;214m"
+. "${HOME}/.local/lib/log.sh"
 
 ha_types=("integration" "dashboard")
 force_mode=false
@@ -15,20 +11,6 @@ ha_core_repo_branch_name="dev"
 help_info() {
   echo -e "Usage: ha_dev [-f|--force] [-d|--dry-run] [-v|--verbose] <integration|dashboard> <user1/repo>"
   exit 1
-}
-
-log() {
-  local level
-  local msg="$2"
-
-  case "$1" in
-    fatal) level="${red}FATAL${reset}" ;;
-    error) level="${red}ERROR${reset}" ;;
-    warning) level="${orange}WARNING${reset}" ;;
-    info|*) level="${blue}INFO${reset}" ;;
-  esac
-
-  echo -e "${level}: ${msg}"
 }
 
 validate_ha_core() {
