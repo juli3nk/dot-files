@@ -11,45 +11,22 @@
 
 set -e
 
+. "${HOME}/.local/lib/de.sh"
+. "${HOME}/.local/lib/log.sh"
+
 MUSIC_STATE="/tmp/music-state"
 DEBUG="${DEBUG:-0}"
 
-# ANSI color codes
-reset="\e[0m"
-red="\e[1;31m"
-blue="\e[1;34m"
-orange="\e[38;5;214m"
-green="\e[1;32m"
-purple="\e[1;35m"
-yellow="\e[1;33m"
-
 command_exists() {
-  command -v "$1" >/dev/null 2>&1
-}
-
-log() {
-  local level
-  local msg="$2"
-
-  case "$1" in
-    fatal) level="${red}FATAL${reset}" ;;
-    error) level="${red}ERROR${reset}" ;;
-    warning) level="${orange}WARNING${reset}" ;;
-    success) level="${green}SUCCESS${reset}" ;;
-    debug) level="${purple}DEBUG${reset}" ;;
-    info|*) level="${blue}INFO${reset}" ;;  # Default is INFO
-  esac
-
-  echo -e "${level}: ${msg}"
-}
-
-get_desktop_environment() {
-  echo "${XDG_SESSION_DESKTOP:-}${XDG_CURRENT_DESKTOP:-}" | grep -oE 'i3|sway' | head -n 1
+  if ! command -v "$1" > /dev/null; then
+    log error "The command '${1}' is missing. Please install it."
+    exit 1
+  fi
 }
 
 create_music_state() {
   if [ "$DEBUG" -eq 1 ]; then
-    log debug "Creating music state file at $MUSIC_STATE"
+    log debug "Creating music state file at ${MUSIC_STATE}"
   else
     touch "$MUSIC_STATE"
     chmod 600 "$MUSIC_STATE"
@@ -58,7 +35,7 @@ create_music_state() {
 
 remove_music_state() {
   if [ "$DEBUG" -eq 1 ]; then
-    log debug "Removing music state file at $MUSIC_STATE"
+    log debug "Removing music state file at ${MUSIC_STATE}"
   else
     rm -f "$MUSIC_STATE"
   fi
@@ -90,8 +67,8 @@ audio_set_mute() {
   if [ "$DEBUG" -eq 1 ]; then
     log debug "Muting audio (microphone and speakers)"
   else
-    wpctl set-mute @DEFAULT_AUDIO_SINK@ "$1"
-    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ "$1"
+    ${HOME}/.wm/audio-vol.sh mute
+    ${HOME}/.wm/audio-vol.sh micmute
   fi
 }
 
@@ -109,13 +86,13 @@ fingerprint_verify() {
 
 lock_screen() {
   case "$DE" in
-    sway)
-      swaylock -f -c 000000
-      fingerprint_verify "swaylock"
-      ;;
     i3)
       i3lock --nofork --ignore-empty-password --color=000000 &
       fingerprint_verify "i3lock"
+      ;;
+    sway)
+      swaylock -f -c 000000
+      fingerprint_verify "swaylock"
       ;;
   esac
 }
@@ -125,21 +102,6 @@ wmlock() {
     log debug "Locking screen with wmlock"
   else
     lock_screen
-  fi
-}
-
-wmmsg() {
-  if [ "$DEBUG" -eq 1 ]; then
-    log debug "Sending message to window manager (wmmsg): $@"
-  else
-    case "$DE" in
-      i3)
-        i3-msg "$@"
-        ;;
-      sway)
-        swaymsg "$@"
-        ;;
-    esac
   fi
 }
 
@@ -157,46 +119,50 @@ same_wifi() {
   fi
 }
 
+check_temp_file() {
+  if [ "$1" == "idle" ] && [ -f "/tmp/screen-lock-temp" ]; then
+    log info "Temporary lock file present."
+    exit
+  fi
+}
+
 
 DE="$(get_desktop_environment)"
-
-if [[ "$DE" != "i3" && "$DE" != "sway" ]]; then
-  log error "Unsupported desktop environment for screen locking."
-  exit 1
-fi
+is_desktop_environment_supported "$DE"
 
 for cmd in jq nmcli playerctl wpctl; do
-  if ! command_exists "$cmd"; then
-    log error "The command '${cmd}' is missing. Please install it."
-    exit 1
-  fi
+  command_exists "$cmd"
 done
 
 lock_type="${2:-regular}"
 
 case "$1" in
   lock)
+    check_temp_file "$lock_type"
     same_wifi "$lock_type"
 
     remove_music_state
     music_pause
-    audio_set_mute "1"
+    audio_set_mute
 
     wmlock
     ;;
   lock-soft)
+    check_temp_file "$lock_type"
     same_wifi "$lock_type"
 
     wmlock
     ;;
   off)
+    check_temp_file "$lock_type"
     same_wifi "$lock_type"
 
     wmmsg "output * dpms off"
     ;;
   resume)
     wmmsg "output * dpms on"
-    audio_set_mute "0"
+
+    if [ -f "$MUSIC_STATE" ]; then audio_set_mute "0" ; fi
     ;;
   *)
     log error "Invalid option. Usage: lock | lock-soft | off | resume"

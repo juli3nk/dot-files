@@ -36,7 +36,7 @@ vol_set() {
   local device_id="$1"
   local vol="$2"
 
-  wpctl set-volume "$device_id" "${1}%"
+  wpctl set-volume "$device_id" "${vol}%"
 }
 
 vol_plus() {

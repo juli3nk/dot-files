@@ -24,23 +24,35 @@ fi
 case "$1" in
   set)
     vol_set "$sink_device_id" "$2"
-  ;;
+    ;;
   plus)
     vol_plus "$sink_device_id"
-  ;;
+    ;;
   minus)
     vol_minus "$sink_device_id"
-  ;;
+    ;;
+  mute)
+    vol_mute "$sink_device_id"
+    ;;
+  unmute)
+    vol_unmute "$sink_device_id"
+    ;;
   toggle)
     vol_mute_toggle "$sink_device_id"
-  ;;
+    ;;
+  is_muted)
+    is_muted "$sink_device_id"
+    ;;
   micmute)
     vol_mute "$source_device_id"
-  ;;
+    ;;
   micunmute)
     vol_unmute "$source_device_id"
-  ;;
+    ;;
   mictoggle)
     vol_mute_toggle "$source_device_id"
-  ;;
+    ;;
+  is_micmuted)
+    is_muted "$source_device_id"
+    ;;
 esac
