@@ -8,7 +8,7 @@ dry_run=false
 verbose_mode=false
 ha_core_repo_branch_name="dev"
 
-help_info() {
+print_usage() {
   echo -e "Usage: ha_dev [-f|--force] [-d|--dry-run] [-v|--verbose] <integration|dashboard> <user1/repo>"
   exit 1
 }
@@ -79,7 +79,7 @@ while [[ "$1" =~ ^- ]]; do
     -f|--force) force_mode=true ;;
     -d|--dry-run) dry_run=true ;;
     -v|--verbose) verbose_mode=true ;;
-    *) log "fatal" "Unknown option: $1"; help_info ;;
+    *) log "fatal" "Unknown option: $1"; print_usage ;;
   esac
   shift
 done

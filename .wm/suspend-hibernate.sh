@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-command_exists() {
-  if ! command -v "$1" > /dev/null; then
-    log error "The command '${1}' is missing. Please install it."
-    exit 1
-  fi
-}
+. "${HOME}/.local/lib/utils.sh"
 
 # Function to kill a program by its pattern
 kill_prog() {
@@ -26,6 +21,8 @@ kill_prog() {
 for cmd in pgrep jq sudo; do
   command_exists "$cmd"
 done
+
+sudo_check
 
 # Check if the 'suspend.prog.kill' array exists in the JSON
 # for prog in $(jq -r '.suspend.prog.kill[]' "$CONFIG_FILE_PATH"); do
