@@ -143,22 +143,20 @@ sudo apt install --no-install-recommends --yes \
   diff-so-fancy \  # Readable file compares (better diff)
   duf \            # Get info on mounted disks (better df)
   hyperfine \      # Benchmarking for arbitrary commands
-  just \           # Powerful command runner (better make)
   jq \             # JSON parser, output and query files
   moreutils \      # More utilities for manipulating files
   most \           # Multi-window scroll pager (better less)
   procs \          # Advanced process viewer (better ps)
   ripgrep \        # Searching within files (better grep)
-  scrot \          # Screenshots programmatically via CLI
   sd \             # RegEx find and replace (better sed)
   tealdeer \       # Reader for command docs (better man)
   tree \           # Directory listings as tree structure
   tokei \          # Count lines of code (better cloc)
   trash-cli \      # Record and restore removed files
-  xsel \           # Copy paste access to the X clipboard
   zoxide \         # Auto-learning navigation (better cd)
 
   # Misc
+  bc \
   curl \
   git \
   tmux \
@@ -166,7 +164,6 @@ sudo apt install --no-install-recommends --yes \
   libfuse2 \
   make \
   pwgen \
-  xdg-utils \
   nvme-cli
 
 ## Docker

@@ -87,6 +87,22 @@ configure_laptop_lid() {
   sudo sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=lock/' /etc/systemd/logind.conf
 }
 
+## System certificates
+configure_system_certificates() {
+  declare -a app_certs=(
+    "/usr/share/librewolf/libnssckbi.so"
+  )
+
+  firefox_rev="$(snap list | awk '/^firefox/ { print $3 }')"
+  app_certs+=("/snap/firefox/${firefox_rev}/usr/lib/firefox/libnssckbi.so")
+
+  for app in "${app_certs[@]}"; do
+    sudo mv "$app" "${app}.bak"
+    sudo ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so "$app"
+  done
+}
+
+
 # Install GUI related apps
 if [ "$(is_gui)" -eq 0 ]; then
   exit
@@ -118,6 +134,7 @@ sudo apt install --no-install-recommends --yes \
   pavucontrol \
   pasystray \
   playerctl \
+  scrot \          # Screenshots programmatically via CLI
   secure-delete \
   snapd \
   thunar \
@@ -127,7 +144,8 @@ sudo apt install --no-install-recommends --yes \
   udiskie \
   vlc \
   virtualbox \
-  xarchiver
+  xarchiver \
+  xdg-utils
 
 if [ "$1" == "i3" ]; then
   sudo apt install --no-install-recommends --yes \
@@ -138,6 +156,7 @@ if [ "$1" == "i3" ]; then
     redshift \
     suckless-tools \
     xclip \
+    xsel \           # Copy paste access to the X clipboard
     xss-lock
 fi
 
@@ -181,16 +200,4 @@ for de in "${desktop_entries[@]}"; do
   mv "${xdg_autostart_dir}/${de}" "$xdg_autostart_disabled_dir"
 done
 
-
-## System certificates
-declare -a app_certs=(
-  "/usr/share/librewolf/libnssckbi.so"
-)
-
-firefox_rev="$(snap list | awk '/^firefox/ { print $3 }')"
-app_certs+=("/snap/firefox/${firefox_rev}/usr/lib/firefox/libnssckbi.so")
-
-for app in "${app_certs[@]}"; do
-  sudo mv "$app" "${app}.bak"
-  sudo ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so "$app"
-done
+configure_system_certificates
