@@ -13,7 +13,7 @@ pm_get_info() {
     attribute="Password"
   fi
 
-  echo "$KEEPASS_PASSWORD" | keepassxc-cli show -q "$KEEPASS_DB_PATH" "$entry" -a "$attribute"
+  keepassxc-cli show -q "$KEEPASS_DB_PATH" "$entry" -a "$attribute" <<< "$KEEPASS_PASSWORD"
 }
 
 

@@ -3,6 +3,7 @@ set -euo pipefail
 
 . "${HOME}/.local/lib/de.sh"
 
+
 DE="$(get_desktop_environment)"
 is_desktop_environment_supported "$DE"
 
@@ -11,21 +12,21 @@ trap 'rm -f "$TMP_FILE"' EXIT
 
 # Extraction des raccourcis
 {
-  [[ -f "${HOME}/.config/${DE}/config" ]] &&
-    grep --no-messages "bindsym \$mod" "${HOME}/.config/${DE}/config"
+    [[ -f "${HOME}/.config/${DE}/config" ]] &&
+        grep --no-messages "bindsym \$mod" "${HOME}/.config/${DE}/config"
 
-  grep --no-messages "bindsym \$mod" "${HOME}/.config/wm/conf.d/"* \
-    | awk -F':' '{ print $2, "(" $1 ")" }'
+    grep --no-messages "bindsym \$mod" "${HOME}/.config/wm/conf.d/"* \
+        | awk -F':' '{ print $2, "(" $1 ")" }'
 } > "$TMP_FILE"
 
 # Nettoyage et formatage
 grep -Ev "workspace" "$TMP_FILE" \
-  | sed -E 's/^bindsym[[:space:]]+//' \
-  | column -t -s $'\t' \
-  | awk '{
-      key=$1;
-      $1="";
-      sub(/^[ \t]+/, "");
-      printf "%-25s %s\n", key, $0
-    }' \
-  | sort -k1,1
+    | sed -E 's/^bindsym[[:space:]]+//' \
+    | column -t -s $'\t' \
+    | awk '{
+        key=$1;
+        $1="";
+        sub(/^[ \t]+/, "");
+        printf "%-25s %s\n", key, $0
+      }' \
+    | sort -k1,1

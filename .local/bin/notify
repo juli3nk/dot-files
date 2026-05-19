@@ -1,27 +1,23 @@
 #!/usr/bin/env bash
 
-command_exists() {
-  if ! command -v "$1" >/dev/null; then
-    echo "Error: ${1} is not installed" >&2
-    exit 1
-  fi
-}
+. "${HOME}/.local/lib/utils.sh"
 
 # Notify with a custom icon (random from Avbl if available, fallback to avatar)
 main() {
-  local base_dir="$HOME/Pictures/DCIM/Avbl"
-  local default_icon="$HOME/dotfiles/assets/avatar.jpg"
-  local icon
+    local base_dir="$HOME/Pictures/DCIM/Avbl"
+    local default_icon="$HOME/dotfiles/assets/avatar.jpg"
+    local icon
 
-  if [[ -d "$base_dir" ]]; then
-    icon=$(find "$base_dir" -type f | sort --random-sort | head -n 1)
-  else
-    icon="$default_icon"
-  fi
+    if [[ -d "$base_dir" ]]; then
+        icon=$(find "$base_dir" -type f | sort --random-sort | head -n 1)
+    else
+        icon="$default_icon"
+    fi
 
-  command_exists "notify-send"
+    command_exists "notify-send"
 
-  notify-send --icon "$icon" "$(whoami)" "$*"
+    notify-send --icon "$icon" "$(whoami)" "$*"
 }
+
 
 main "$@"

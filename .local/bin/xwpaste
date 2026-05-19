@@ -7,9 +7,9 @@ DE=$(get_desktop_environment)
 is_desktop_environment_supported "$DE"
 
 if [[ "$DE" == "i3" ]]; then
-  PASTE_CMD="xclip -selection clipboard -o"
+    PASTE_CMD="xclip -selection clipboard -o"
 elif [[ "$DE" == "sway" ]]; then
-  PASTE_CMD="wl-paste"
+    PASTE_CMD="wl-paste"
 fi
 
 $PASTE_CMD

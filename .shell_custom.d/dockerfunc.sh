@@ -28,13 +28,6 @@ dockerlint() {
     --rm \
     hadolint/hadolint < "$@"
 }
-hdu() {
-  docker container run \
-    -t \
-    --rm \
-    --mount type=bind,src="${HOME}/Dev/juli3nk/home-dns-data/data.yml",dst=/tmp/data.yml,ro \
-    juli3nk/home-dns-update "$@"
-}
 htpasswd() {
   docker container run \
     -ti \

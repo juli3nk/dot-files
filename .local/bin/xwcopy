@@ -7,15 +7,15 @@ DE=$(get_desktop_environment)
 is_desktop_environment_supported "$DE"
 
 if [[ "$DE" == "i3" ]]; then
-  COPY_CMD="xclip -selection clipboard"
+    COPY_CMD="xclip -selection clipboard"
 elif [[ "$DE" == "sway" ]]; then
-  COPY_CMD="wl-copy"
+    COPY_CMD="wl-copy"
 fi
 
 # Vérifier si stdin contient des données
 if [ -t 0 ]; then
-  echo "Error: No input detected. Please provide text via stdin."
-  exit 1
+    echo "Error: No input detected. Please provide text via stdin."
+    exit 1
 fi
 
 cat | $COPY_CMD

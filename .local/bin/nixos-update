@@ -14,6 +14,9 @@
 
 set -euo pipefail
 
+. "${HOME}/.local/lib/log.sh"
+. "${HOME}/.local/lib/utils.sh"
+
 # Configuration
 # FLAKE_DIR="${FLAKE_DIR:-$HOME/nixos-config}"
 FLAKE_DIR="/etc/nixos"  # Your flake is in /etc/nixos
@@ -87,7 +90,6 @@ parse_args() {
                 NOTIFY=false
                 shift
                 ;;
-            ;;
             -h|--help)
                 show_help
                 ;;
@@ -101,21 +103,21 @@ parse_args() {
 
 validate_version() {
     local version="$1"
-    
+
     # Check if version is empty
     [[ -z "$version" ]] && error "Version cannot be empty"
-    
+
     # Reject "unstable"
     [[ "$version" == "unstable" ]] && error "Unstable version is not allowed. Please use a stable release version (YY.MM format)"
-    
+
     # Validate format: YY.MM for stable releases (YY must start with 2-9)
     if [[ ! "$version" =~ ^[2-9]{1}[0-9]{1}\.[0-9]{2}$ ]]; then
         error "Invalid version format: ${version}\nExpected format: YY.MM (e.g., 25.05, 26.05) where YY starts with 2-9"
     fi
-    
+
     # Extract month part for sanity check
     local month="${version#*.}"
-    
+
     # Basic sanity check: month should be 05 or 11 for stable releases
     if [[ "$month" != "05" && "$month" != "11" ]]; then
         warn "⚠️  Warning: Stable NixOS releases typically use .05 (May) or .11 (November)"
@@ -125,20 +127,20 @@ validate_version() {
 
 upgrade_nixos_version() {
     local new_version="$1"
-    
+
     log "🔄 Upgrading NixOS to version ${BLUE}${new_version}${NC}..."
-    
+
     # Validation
     validate_version "$new_version"
-    
+
     # Backup of the current flake.nix
     log "📦 Backing up flake.nix..."
     cp flake.nix "flake.nix.backup-$(date +%Y%m%d-%H%M%S)"
-    
+
     # The nixpkgs URL
     local nixpkgs_url="github:NixOS/nixpkgs/nixos-${new_version}"
     log "📝 Updating flake.nix nixpkgs input to: ${nixpkgs_url}"
-    
+
     # Method 1 : with sed (simple)
     if grep -q "nixpkgs.url.*github:NixOS/nixpkgs" flake.nix; then
         sed -i "s|nixpkgs\.url = \"github:NixOS/nixpkgs/nixos-[^\"]*\"|nixpkgs.url = \"${nixpkgs_url}\"|g" flake.nix
@@ -151,11 +153,11 @@ upgrade_nixos_version() {
         echo ""
         read -p "Press Enter after manual update, or Ctrl+C to abort..."
     fi
-    
+
     # Show the diff
     log "📋 Changes in flake.nix:"
     git diff flake.nix | head -20 || true
-    
+
     # Confirmation message
     echo ""
     warn "⚠️  You are about to upgrade to NixOS ${new_version}"
@@ -168,32 +170,38 @@ upgrade_nixos_version() {
         mv flake.nix.backup-* flake.nix 2>/dev/null || true
         exit 0
     fi
-    
+
     # Update flake.lock
     log "🔄 Updating flake.lock..."
     nix flake update || error "Failed to update flake"
-    
+
     log "✅ NixOS version upgraded to ${new_version}"
     log "💡 Next: Run rebuild to build the new configuration"
 }
 
 show_flake_changes() {
     log "📋 Flake changes:"
-    
+
     [[ -f flake.lock ]] && cp flake.lock flake.lock.backup
 
     nix flake update || error "❌ Flake update failed"
-    
+
     if [[ -f flake.lock.backup ]]; then
         # git diff flake.lock | awk '/^[+-]/ && !/^(---|\+\+\+)/'
         git diff --no-color flake.lock.backup flake.lock | \
             awk '/^[+-]/ && !/^(---|\+\+\+)/' | \
             head -30
     fi
-    
+
     rm -f flake.lock.backup
 }
 
+
+for cmd in nix jq git; do
+    command_exists "$cmd"
+done
+
+sudo_check()
 
 parse_args "$@"
 

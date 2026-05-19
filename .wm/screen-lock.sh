@@ -13,16 +13,10 @@ set -e
 
 . "${HOME}/.local/lib/de.sh"
 . "${HOME}/.local/lib/log.sh"
+. "${HOME}/.local/lib/utils.sh"
 
 MUSIC_STATE="/tmp/music-state"
 DEBUG="${DEBUG:-0}"
-
-command_exists() {
-  if ! command -v "$1" > /dev/null; then
-    log error "The command '${1}' is missing. Please install it."
-    exit 1
-  fi
-}
 
 create_music_state() {
   if [ "$DEBUG" -eq 1 ]; then
