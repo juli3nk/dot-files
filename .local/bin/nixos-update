@@ -19,7 +19,7 @@ set -euo pipefail
 
 # Configuration
 # FLAKE_DIR="${FLAKE_DIR:-$HOME/nixos-config}"
-FLAKE_DIR="/etc/nixos"  # Your flake is in /etc/nixos
+FLAKE_DIR="./"
 HOSTNAME_CURRENT="$(hostname)"
 HOSTNAME="${1:-$(hostname)}"
 NIXOS_VERSION=""
@@ -54,19 +54,22 @@ show_help() {
 ${GREEN}Usage:${NC}
   nixos-update [HOSTNAME] [OPTIONS]
   nixos-update --upgrade <version> [HOSTNAME]
+  nixos-update --list-versions
 
 ${GREEN}Arguments:${NC}
   HOSTNAME              Machine to update (default: current hostname)
 
 ${GREEN}Options:${NC}
   --upgrade VERSION     Upgrade NixOS to specified version (e.g., 25.05, 25.11)
+  --list-versions       List available NixOS versions
   -h, --help            Show this help message
 
 ${GREEN}Examples:${NC}
-  nixos-update                    # Update current machine
-  nixos-update laptop1            # Update laptop1
-  nixos-update --upgrade 25.05    # Upgrade current machine to 25.05
+  nixos-update                       # Update current machine
+  nixos-update laptop1               # Update laptop1
+  nixos-update --upgrade 25.05       # Upgrade current machine to 25.05
   nixos-update --upgrade 25.05 srv1  # Upgrade srv1 to 25.05
+  nixos-update --list-versions       # List available NixOS versions
 
 ${GREEN}Version format:${NC}
   YY.MM (e.g., 25.05, 26.05) - Stable releases only"
@@ -74,31 +77,13 @@ ${GREEN}Version format:${NC}
     exit 0
 }
 
-parse_args() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --upgrade)
-                UPGRADE_MODE=true
-                NIXOS_VERSION="$2"
-                shift 2
-                ;;
-            --notify)
-                NOTIFY=true
-                shift
-                ;;
-            --no-notify)
-                NOTIFY=false
-                shift
-                ;;
-            -h|--help)
-                show_help
-                ;;
-            *)
-                HOSTNAME="$1"
-                shift
-                ;;
-        esac
-    done
+show_versions() {
+    echo "NixOS versions:"
+    echo "  Current version: $(nixos-version)"
+    echo "  Available versions:"
+    git ls-remote --tags --refs https://github.com/NixOS/nixpkgs.git | awk -F'/' '/\/[0-9]{2}\.[0-9]{2}$/ { print $NF }' | sort --version-sort | tail -n 5
+
+    exit 0
 }
 
 validate_version() {
@@ -196,12 +181,42 @@ show_flake_changes() {
     rm -f flake.lock.backup
 }
 
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --list-versions)
+                show_versions
+                ;;
+            --upgrade)
+                UPGRADE_MODE=true
+                NIXOS_VERSION="$2"
+                shift 2
+                ;;
+            --notify)
+                NOTIFY=true
+                shift
+                ;;
+            --no-notify)
+                NOTIFY=false
+                shift
+                ;;
+            -h|--help)
+                show_help
+                ;;
+            *)
+                HOSTNAME="$1"
+                shift
+                ;;
+        esac
+    done
+}
+
 
 for cmd in nix jq git; do
     command_exists "$cmd"
 done
 
-sudo_check()
+sudo_check
 
 parse_args "$@"
 
@@ -216,9 +231,9 @@ if [ -z "$flake_target" ]; then
 fi
 
 log "🚀 NixOS Update Script"
-log "🖥️  Current machine: ${YELLOW}${HOSTNAME_CURRENT}${NC}"
-log "🎯  Target: ${BLUE}${HOSTNAME}${NC}"
-log "🔍  Flake target: ${YELLOW}.#${flake_target}${NC}"
+log "🖥️   Current machine: ${YELLOW}${HOSTNAME_CURRENT}${NC}"
+log "🎯   Target: ${BLUE}${HOSTNAME}${NC}"
+log "🔍   Flake target: ${YELLOW}.#${flake_target}${NC}"
 [[ "$UPGRADE_MODE" == true ]] && log "📦 Upgrade mode: ${BLUE}${NIXOS_VERSION}${NC}"
 
 # Check for uncommitted changes
@@ -231,7 +246,7 @@ if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
 
     # Automatic backup
     log "📦 Creating backup commit..."
-    git add . && git commit -m "Pre-update backup [${flake_target}] $(date +%Y-%m-%d_%H:%M)" || true
+    # git add . && git commit -m "Pre-update backup [${flake_target}] $(date +%Y-%m-%d_%H:%M)" || true
 fi
 
 # Upgrade mode
@@ -244,11 +259,11 @@ fi
 
 # Build test
 log "🔨 Building configuration for ${flake_target}..."
-sudo nixos-rebuild build --flake "$flake_target" || error "❌ Build failed"
+nixos-rebuild build --flake ".#${flake_target}" --option build-dir /nix/var/nix/builds || error "❌ Build failed"
 
 # Show the differences
 log "📊 Computing differences..."
-nix store diff-closures /run/current-system ./result | head -50
+nix store diff-closures /run/current-system ./result
 
 # Ask for confirmation
 echo ""
@@ -268,13 +283,13 @@ echo
 case $REPLY in
     b|B)
         log "🥾 Applying to boot..."
-        sudo nixos-rebuild boot --flake "$flake_target" || error "Boot configuration failed"
+        sudo nixos-rebuild boot --flake ".#${flake_target}" || error "Boot configuration failed"
         log "✅ Configuration will be active after reboot"
         [[ $NOTIFY == true ]] && notify-send "NixOS Updated" "Reboot ${flake_target} to apply changes"
         ;;
     s|S)
         log "⚡ Switching immediately..."
-        sudo nixos-rebuild switch --flake "$flake_target" || error "Switch failed"
+        sudo nixos-rebuild switch --flake ".#${flake_target}" || error "Switch failed"
         log "✅ System ${flake_target} updated successfully!"
         [[ $NOTIFY == true ]] && notify-send "NixOS Updated" "${flake_target} updated successfully"
         # Post-update checks
@@ -288,7 +303,7 @@ case $REPLY in
         ;;
     t|T)
         log "🧪 Testing configuration..."
-        sudo nixos-rebuild test --flake "$flake_target" || error "Test failed"
+        sudo nixos-rebuild test --flake ".#${flake_target}" || error "Test failed"
         log "✅ Configuration tested (temporary, will revert on reboot)"
         ;;
     *)
@@ -297,21 +312,11 @@ case $REPLY in
         ;;
 esac
 
-# Optional cleanup
-echo ""
-read -p "Run garbage collection? (y/N) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    log "🗑️  Running garbage collection..."
-    sudo nix-collect-garbage --delete-older-than 30d
-    log "🧹 Old generations cleaned"
-fi
-
 # Commit
 if [[ -n $(git status --porcelain) ]]; then
     log "💾 Committing changes..."
     git add flake.lock flake.nix
-    local commit_msg="Update NixOS [${HOSTNAME}] $(date +%Y-%m-%d)"
+    commit_msg="Update NixOS [${HOSTNAME}] $(date +%Y-%m-%d)"
     [[ "$UPGRADE_MODE" == true ]] && commit_msg="Upgrade to NixOS ${NIXOS_VERSION} [${HOSTNAME}] $(date +%Y-%m-%d)"
     git commit -m "$commit_msg" || true
 fi

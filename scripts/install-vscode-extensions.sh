@@ -10,13 +10,12 @@ declare -a extensions=(
   "formulahendry.auto-close-tag"
   "jeremyljackson.vs-docblock"
   "ms-vscode-remote.remote-containers"
-  "ms-vscode-remote.remote-wsl"
   "oderwat.indent-rainbow"
-  "visualstudioexptteam.vscodeintellicode"
   "vscode-icons-team.vscode-icons"
   "chouzz.vscode-better-align"
   "yzhang.markdown-all-in-one"
 )
+# "ms-vscode-remote.remote-wsl"
 
 
 for extension in "${extensions[@]}"; do

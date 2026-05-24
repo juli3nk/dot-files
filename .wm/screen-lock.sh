@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # This script locks the screen, pauses the music, and mutes the audio based on the system's state.
 # Options:
 #   lock - locks the screen and pauses the music

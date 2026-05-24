@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 
+. "${HOME}/.local/lib/utils.sh"
+
 POLKIT_BIN_NAME="polkit-mate-authentication-agent-1"
 POLKIT_BIN_PATH="/usr/lib/x86_64-linux-gnu/polkit-mate"
-
-command_exists() {
-  if ! command -v "$1" > /dev/null; then
-    log error "The command '${1}' is missing. Please install it."
-    exit 1
-  fi
-}
 
 
 for cmd in lsb_release; do

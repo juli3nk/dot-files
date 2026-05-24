@@ -5,41 +5,34 @@ CURRENT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
 . "${CURRENT_DIR}/utils.sh"
 
+LOCAL_BIN="${HOME}/.local/bin"
+PATH=${LOCAL_BIN}:${PATH}
+
 # asdf
 ASDF_DIR_PATH="${HOME}/.asdf"
 ASDF_REPO_URL="github.com/asdf-vm/asdf"
 
 ASDF_VERSION="$(get_latest_tag "$ASDF_REPO_URL")"
 
-if [ ! -d "$ASDF_DIR_PATH" ]; then
-  git clone "https://${ASDF_REPO_URL}.git" "$ASDF_DIR_PATH" --branch "v${ASDF_VERSION}"
-fi
+mkdir -p "$LOCAL_BIN"
 
-. "${ASDF_DIR_PATH}/asdf.sh"
+if [ ! -f "${LOCAL_BIN}/bin/asdf" ]; then
+  curl -sfL "https://${ASDF_REPO_URL}/releases/download/v${ASDF_VERSION}/asdf-v${ASDF_VERSION}-linux-amd64.tar.gz" | tar -xzC "$LOCAL_BIN"
+fi
 
 # Install apps using asdf
 declare -a apps=(
   "age"
   "bat;https://github.com/juli3nk/asdf-bat.git"
   "bottom"
-  "cosign"
-  "ctop"
-  "dagger"
   "dotfiles;https://github.com/juli3nk/asdf-dotfiles.git"
   "eza;https://github.com/juli3nk/asdf-eza.git"
   "github-cli"
-  "helm"
-  "kind"
-  "krew"
-  "kubectl"
-  "kubent"
   "lefthook"
   "neovim;https://github.com/juli3nk/asdf-neovim.git"
-  "nerdctl"
   "pluto"
   "ripgrep"
   "sops"
-  "step"
   "yq"
   "zoxide"
 )
@@ -50,7 +43,6 @@ for app in "${apps[@]}"; do
 
   asdf plugin add "$app_name" "$app_url"
   asdf install "$app_name" latest
-  asdf global "$app_name" latest
 done
 
 # FZF
@@ -58,41 +50,6 @@ if [ ! -d "${HOME}/.fzf" ]; then
   git clone --depth 1 https://github.com/junegunn/fzf.git "${HOME}/.fzf"
   "${HOME}/.fzf/install"
 fi
-
-# Skopeo
-#git clone http://github.com/containers/skopeo.git /tmp/skopeo
-#pushd /tmp/skopeo
-#make binary
-#popd
-
-# Kubectl plugins
-# https://krew.sigs.k8s.io/plugins/
-declare -a kubectl_plugins=(
-  "config-doctor"
-  "ctx"
-  "neat"
-  "ns"
-  "outdated"
-  "stern"
-  "view-cert"
-  "view-secret"
-  "view-utilization"
-)
-
-for plugin in "${kubectl_plugins[@]}"; do
-  kubectl krew install "$plugin"
-done
-
-# Helm plugins
-declare -a helm_plugins=(
-  "https://github.com/databus23/helm-diff"
-  "https://github.com/jkroepke/helm-secrets"
-)
-
-for plugin in "${helm_plugins[@]}"; do
-  helm plugin install "$plugin"
-done
-
 
 # Install GUI related apps
 if [ "$(is_gui)" -eq 0 ]; then

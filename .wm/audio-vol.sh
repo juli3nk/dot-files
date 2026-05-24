@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -eo pipefail
 
 . "${HOME}/.local/lib/sound.sh"

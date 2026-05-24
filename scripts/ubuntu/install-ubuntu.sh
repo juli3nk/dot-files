@@ -156,6 +156,8 @@ sudo apt install --no-install-recommends --yes \
   zoxide \         # Auto-learning navigation (better cd)
 
   # Misc
+  extrepo \
+  chrony \
   bc \
   curl \
   git \

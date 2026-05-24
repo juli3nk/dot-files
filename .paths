@@ -7,5 +7,5 @@ case ":${PATH}:" in
     ;;
 esac
 
-. "${HOME}/.asdf/asdf.sh"
+PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash

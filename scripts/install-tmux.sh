@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -e
-set -u
-set -o pipefail
+set -euo pipefail
 
 . ./utils.sh
 
@@ -10,6 +8,8 @@ TMUX_PLUGINS_PATH="${HOME}/.tmux/plugins"
 
 REPODIR="$(cd "$(dirname "$0")"; pwd -P)"
 cd "$REPODIR"
+
+mkdir -p "$TMUX_PLUGINS_PATH"
 
 if ! is_app_installed tmux; then
   echo -e "WARNING: \"tmux\" command is not found. Install it first\n"

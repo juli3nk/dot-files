@@ -52,7 +52,7 @@ declare -a nerd_fonts=(
   "VictorMono"
 )
 nerd_fonts_repo_url="https://github.com/ryanoasis/nerd-fonts"
-nerd_fonts_version="$(git ls-remote --refs --tags "$nerd_font_repo_url" | tail -n 1 | awk -F '/' '{ print $NF }')"
+nerd_fonts_version="$(git ls-remote --refs --tags "$nerd_fonts_repo_url" | tail -n 1 | awk -F '/' '{ print $NF }')"
 
 others_fonts=(
   "https://github.com/google/material-design-icons;material-design-icons/font;material-design-icons-font"
@@ -60,7 +60,7 @@ others_fonts=(
   "https://github.com/FortAwesome/Font-Awesome;Font-Awesome/otfs;font-awesome"
   "https://github.com/stephenhutchings/typicons.font;typicons.font/src/font;typicons-font"
 )
-fonts_others_dir="${HOME}/.lcoal/Github"
+fonts_others_dir="${HOME}/.local/Github"
 
 fonts_dir="${HOME}/.local/share/fonts"
 

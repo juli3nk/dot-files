@@ -1,5 +1,5 @@
 
-assign [class="Alacritty"] workspace $workspace1
-assign [class="Code"] workspace $workspace2
-assign [class="Cursor"] workspace $workspace2
-assign [class="KeePassXC$"] workspace $workspace10
+assign [app_id="Alacritty"] workspace $workspace1
+assign [app_id="code"] workspace $workspace2
+assign [app_id="cursor"] workspace $workspace2
+assign [app_id="KeePassXC$"] workspace $workspace10
