@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+# Sélectionne automatiquement le meilleur pinentry disponible
+
+set -euo pipefail
+
+# Fonction pour tester si un binaire existe et est exécutable
+has_binary() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Fonction pour tester si un pinentry fonctionne
+test_pinentry() {
+    local pinentry="$1"
+    if ! has_binary "$pinentry"; then
+        return 1
+    fi
+
+    # Test simple : le binaire répond-il ?
+    echo "GETINFO version" | "$pinentry" >/dev/null 2>&1
+}
+
+# Détection de l'environnement
+detect_environment() {
+    # Wayland natif
+    if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+        echo "wayland"
+        return
+    fi
+
+    # X11
+    if [[ -n "${DISPLAY:-}" ]]; then
+        echo "x11"
+        return
+    fi
+
+    # SSH distant ou TTY pur
+    if [[ -n "${SSH_CONNECTION:-}" ]] || [[ -n "${SSH_CLIENT:-}" ]]; then
+        echo "ssh"
+        return
+    fi
+
+    # Fallback TTY
+    echo "tty"
+}
+
+# Sélection du pinentry selon l'environnement
+select_pinentry() {
+    local env
+    env=$(detect_environment)
+
+    case "$env" in
+        wayland)
+            # Ordre de préférence pour Wayland
+            for candidate in \
+                pinentry-gtk-2 \
+                pinentry-gnome3 \
+                pinentry-qt \
+                pinentry-curses \
+                pinentry-tty
+            do
+                if test_pinentry "$candidate"; then
+                    echo "$candidate"
+                    return 0
+                fi
+            done
+            ;;
+
+        x11)
+            # Ordre de préférence pour X11
+            for candidate in \
+                pinentry-gtk-2 \
+                pinentry-gnome3 \
+                pinentry-qt \
+                pinentry-x11 \
+                pinentry-curses \
+                pinentry-tty
+            do
+                if test_pinentry "$candidate"; then
+                    echo "$candidate"
+                    return 0
+                fi
+            done
+            ;;
+
+        ssh|tty)
+            # Mode texte uniquement
+            for candidate in \
+                pinentry-curses \
+                pinentry-tty
+            do
+                if test_pinentry "$candidate"; then
+                    echo "$candidate"
+                    return 0
+                fi
+            done
+            ;;
+    esac
+
+    # Fallback ultime
+    if has_binary pinentry; then
+        echo "pinentry"
+        return 0
+    fi
+
+    # Échec total
+    echo "Aucun pinentry trouvé !" >&2
+    return 1
+}
+
+# Exécution
+PINENTRY=$(select_pinentry)
+
+if [[ -z "$PINENTRY" ]]; then
+    exit 1
+fi
+
+# Debug optionnel (décommenter pour logger)
+# echo "$(date): Utilisation de $PINENTRY (env: $(detect_environment))" >> /tmp/pinentry-auto.log
+
+# Exécuter le pinentry sélectionné avec tous les arguments
+exec "$PINENTRY" "$@"
