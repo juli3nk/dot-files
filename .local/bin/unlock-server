@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+usage() {
+    echo "Usage: $0 --server-ip <ip> --ssh-port <port> --device-path <path> --device-name <name> [--passphrase <passphrase>]"
+    echo ""
+    echo "Options:"
+    echo "  --server-ip <ip>      IP address of the server (required)"
+    echo "  --ssh-port <port>     SSH port number (required)"
+    echo "  --device-path <path>  Path to the encrypted device, e.g., /dev/sda1 (required)"
+    echo "  --device-name <name>  Name for the unlocked device, e.g., cryptroot (required)"
+    echo "  --passphrase <pass>   LUKS passphrase (optional, will prompt if not provided)"
+    echo ""
+    echo "Example:"
+    echo "  $0 --server-ip 192.168.1.100 --ssh-port 2222 --device-path /dev/sda1 --device-name cryptroot"
+    exit 1
+}
+
+# Parse arguments
+SERVER_IP=""
+SERVER_SSH_PORT=""
+DEVICE_PATH=""
+DEVICE_NAME=""
+PASSPHRASE=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --server-ip)
+            SERVER_IP="$2"
+            shift 2
+            ;;
+        --ssh-port)
+            SERVER_SSH_PORT="$2"
+            shift 2
+            ;;
+        --device-path)
+            DEVICE_PATH="$2"
+            shift 2
+            ;;
+        --device-name)
+            DEVICE_NAME="$2"
+            shift 2
+            ;;
+        --passphrase)
+            PASSPHRASE="$2"
+            shift 2
+            ;;
+        --help|-h)
+            usage
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
+
+# Validate required parameters
+if [ -z "$SERVER_IP" ] || [ -z "$SERVER_SSH_PORT" ] || [ -z "$DEVICE_PATH" ] || [ -z "$DEVICE_NAME" ]; then
+    echo "Error: Missing required parameters"
+    usage
+fi
+
+# Prompt for passphrase if not provided
+if [ -z "$PASSPHRASE" ]; then
+    echo -n "Enter LUKS passphrase: "
+    read -s PASSPHRASE
+    echo
+fi
+
+echo "🔓 Unlocking server..."
+
+ssh -p "$SERVER_SSH_PORT" \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    "root@${SERVER_IP}" \
+    "echo '${PASSPHRASE}' | cryptsetup luksOpen ${DEVICE_PATH} ${DEVICE_NAME}"
+
+echo "✅ Server unlocked, starting up..."

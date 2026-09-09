@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+KEYDIR=/run/user/$(id -u)/age-keys
+
+mkdir -p "$KEYDIR"
+chmod 700 "$KEYDIR"
+
+keepassxc-cli show /chemin/base.kdbx "SOPS age key" --attribute notes > "$KEYDIR/keys.txt"
+
+chmod 600 "$KEYDIR/keys.txt"
+export AGE_KEY_FILE="$KEYDIR/keys.txt"

@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+. "${HOME}/.local/lib/utils.sh"
+
+waitnetwork() {
+  while true; do
+    if ping -q -c 1 -w 2 -W 1 debian.org > /dev/null; then
+      return 0
+    else
+      sleep 5
+    fi
+  done
+}
+
+set_timezone() {
+  # Get the current timezone from the system
+  current_tz=$(timedatectl | grep "Time zone" | awk '{ print $3 }')
+
+  # Get the timezone of the current location based on the IP address
+  location_tz=$(curl -s 'http://ip-api.com/line/?fields=timezone')
+
+  if [ "$current_tz" != "$location_tz" ] && [ -n "$location_tz" ]; then
+    jq '.local = "$location_tz"' "${HOME}/.config/local/timezones.json" | sponge "${HOME}/.config/local/timezones.json"
+    # sudo timedatectl set-timezone "$location_tz"
+
+    # say "System timezone set to $location_tz"
+    echo "System timezone set to $location_tz"
+
+    return 0
+  elif [ $force ]; then
+    return 0
+  fi
+
+  return 1
+}
+
+set_coordinates() {
+  coordinates=$(curl -s -X GET -H "Accept: application/json" http://ip-api.com/json/?fields=lat,lon)
+
+  if [ -n "$coordinates" ]; then
+    echo "$coordinates" \
+      | jq '.lat = (.lat | tonumber | . * 10 | round / 10) | .lon = (.lon | tonumber | . * 10 | round / 10)' \
+      > "${HOME}/.config/local/location.json"
+    systemctl --user restart redwlsun.service
+
+    return 0
+  else
+    echo "Fetching new coordinates failed, using old ones"
+
+    return 1
+  fi
+}
+
+
+for cmd in curl jq sponge; do
+  command_exists "$cmd"
+done
+
+# always update coordinates even tho its just gonna yield closest ISP location
+# waitnetwork && set_coordinates && set_timezone &&
+#   systemctl --user restart redwlsun.service && sudo systemctl start reflector
+set_coordinates

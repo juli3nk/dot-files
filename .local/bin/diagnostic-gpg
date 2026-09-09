@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+echo "=== Diagnostic SSH Agent ==="
+echo
+
+echo "1. Processus gpg-agent :"
+pgrep -a gpg-agent || echo "❌ Pas de processus gpg-agent"
+echo
+
+echo "2. Socket SSH de gpg-agent :"
+SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+echo "   Chemin : $SOCK"
+if [[ -S "$SOCK" ]]; then
+  echo "   ✅ Socket existe"
+  ls -la "$SOCK"
+else
+  echo "   ❌ Socket n'existe pas"
+fi
+echo
+
+echo "3. Variable SSH_AUTH_SOCK :"
+echo "   Valeur : ${SSH_AUTH_SOCK:-<non définie>}"
+if [[ "$SSH_AUTH_SOCK" == "$SOCK" ]]; then
+  echo "   ✅ Pointe vers gpg-agent"
+elif [[ -z "$SSH_AUTH_SOCK" ]]; then
+  echo "   ❌ Variable non définie"
+else
+  echo "   ⚠️  Pointe ailleurs (probablement ssh-agent)"
+fi
+echo
+
+echo "4. Test connexion :"
+if ssh-add -l &>/dev/null; then
+  echo "   ✅ Connexion réussie"
+  ssh-add -l
+else
+  case $? in
+    1) echo "   ⚠️  Aucune clé chargée" ;;
+    2) echo "   ❌ Impossible de se connecter à l'agent" ;;
+  esac
+fi
+echo
+
+echo "5. Configuration gpg-agent :"
+if [[ -f ~/.gnupg/gpg-agent.conf ]]; then
+  grep -E "^enable-ssh-support|^pinentry-program" ~/.gnupg/gpg-agent.conf || echo "   ⚠️  enable-ssh-support absent"
+else
+  echo "   ❌ Fichier ~/.gnupg/gpg-agent.conf absent"
+fi

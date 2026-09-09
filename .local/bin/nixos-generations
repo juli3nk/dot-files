@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+list_generations() {
+  sudo nix-env -p /nix/var/nix/profiles/system --list-generations
+}
+
+delete_oldest() {
+  local keep=$1
+  local generations
+  generations=$(list_generations)
+  local total
+  total=$(echo "$generations" | wc -l)
+
+  if [[ $total -le $keep ]]; then
+    echo "ℹ️  Only $total generation(s) found, nothing to delete (keeping $keep)."
+    return
+  fi
+
+  local to_delete
+  to_delete=$(echo "$generations" | head -n -"$keep" | awk '{ print $1 }')
+
+  echo "📋 Generations to delete:"
+  echo "$to_delete"
+  echo ""
+  read -p "Confirm deletion? (y/N) " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # echo "$to_delete" | xargs sudo nix-env -p /nix/var/nix/profiles/system --delete-generations
+    echo "✅ Done. Running garbage collection..."
+    # sudo nix-collect-garbage
+    # sudo nix-collect-garbage --delete-older-than 30d
+    echo "🧹 Garbage collected."
+  else
+    echo "❌ Cancelled."
+  fi
+}
+
+echo "📦 Current generations:"
+list_generations
+echo ""
+
+read -p "How many recent generations to keep? " keep
+
+if ! [[ $keep =~ ^[0-9]+$ ]] || [[ $keep -lt 1 ]]; then
+  echo "❌ Invalid number."
+  exit 1
+fi
+
+delete_oldest "$keep"

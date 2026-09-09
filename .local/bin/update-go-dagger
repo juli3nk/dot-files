@@ -1,0 +1,252 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+GO_FEATURE="ghcr.io/devcontainers/features/go:1"
+DAGGER_FEATURE="ghcr.io/devcontainers-extra/features/asdf-package:1"
+
+GO_VERSION_URL="https://go.dev/VERSION?m=text"
+DAGGER_RELEASE_URL="https://api.github.com/repos/dagger/dagger/releases/latest"
+DAGGER_SDK_GOMOD="https://raw.githubusercontent.com/dagger/dagger/v%s/sdk/go/go.mod"
+
+usage() {
+  cat <<EOF
+Usage: $0 [OPTIONS] [DIR]
+
+Updates the Go and Dagger versions of a project in go.mod and devcontainers.json.
+
+The script fetches:
+  - the latest stable Go version
+  - the latest Dagger version
+  - the minimum Go version required by the Dagger SDK
+  - the local Dagger version installed on the machine
+
+By default it only previews the planned changes (dry run). When the project has no
+Dagger reference, only the latest stable Go version is proposed.
+
+Options:
+  -a        apply the proposed changes (with confirmation)
+  -y        apply without confirmation
+  -n        dry run (default): show planned changes without modifying anything
+  -h        show this help
+
+Arguments:
+  DIR       project directory (default: current directory)
+EOF
+}
+
+DRY_RUN=1
+APPLY_WITHOUT_CONFIRM=0
+
+while getopts "anyh" opt; do
+  case "$opt" in
+    a) DRY_RUN=0; APPLY_WITHOUT_CONFIRM=0 ;;
+    y) DRY_RUN=0; APPLY_WITHOUT_CONFIRM=1 ;;
+    n) DRY_RUN=1 ;;
+    h) usage; exit 0 ;;
+    *) usage; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+PROJECT_DIR="${1:-$(pwd)}"
+PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
+
+GOMOD="$PROJECT_DIR/go.mod"
+if [[ -f "$PROJECT_DIR/devcontainers.json" ]]; then
+  DEVCONTAINER="$PROJECT_DIR/devcontainers.json"
+elif [[ -f "$PROJECT_DIR/.devcontainer.json" ]]; then
+  DEVCONTAINER="$PROJECT_DIR/.devcontainer.json"
+elif [[ -f "$PROJECT_DIR/.devcontainer/devcontainer.json" ]]; then
+  DEVCONTAINER="$PROJECT_DIR/.devcontainer/devcontainer.json"
+else
+  DEVCONTAINER=""
+fi
+
+if [[ ! -f "$GOMOD" && -z "$DEVCONTAINER" ]]; then
+  echo "Error: no go.mod or devcontainers.json/.devcontainer.json found in $PROJECT_DIR" >&2
+  exit 1
+fi
+
+command -v curl >/dev/null || { echo "Error: curl is required" >&2; exit 1; }
+command -v jq >/dev/null || { echo "Error: jq is required" >&2; exit 1; }
+
+log() { printf '%s\n' "$*"; }
+warn() { printf 'Warning: %s\n' "$*" >&2; }
+
+get_go_latest() {
+  curl -fsSL "$GO_VERSION_URL" | sed -n 's/^go\([0-9][0-9.]*\)$/\1/p' | head -n1
+}
+
+get_dagger_latest() {
+  curl -fsSL "$DAGGER_RELEASE_URL" | jq -r '.tag_name' | sed 's/^v//'
+}
+
+get_dagger_go_min() {
+  local dagger_version="$1"
+  curl -fsSL "$(printf "$DAGGER_SDK_GOMOD" "$dagger_version")" \
+    | sed -n 's/^go[[:space:]]\+\([0-9][0-9.]*\)$/\1/p' | head -n1
+}
+
+get_local_dagger() {
+  dagger version 2>/dev/null | sed -n 's/.*v\([0-9][0-9.]*\).*/\1/p' | head -n1 || true
+}
+
+version_lt() {
+  local a="$1" b="$2"
+  [[ "$(printf '%s\n%s\n' "$a" "$b" | sort -V | head -n1)" == "$a" && "$a" != "$b" ]]
+}
+
+has_dagger_in_repo() {
+  if [[ -n "$DEVCONTAINER" ]] \
+    && jq -e --arg f "$DAGGER_FEATURE" '.features[$f] | (.plugin == "dagger")' "$DEVCONTAINER" >/dev/null 2>&1; then
+    return 0
+  fi
+  if [[ -n "$(find "$PROJECT_DIR" -maxdepth 3 -name dagger.json -print -quit 2>/dev/null)" ]]; then
+    return 0
+  fi
+  if [[ -f "$GOMOD" ]] && grep -q 'dagger/dagger' "$GOMOD"; then
+    return 0
+  fi
+  return 1
+}
+
+log "Project: $PROJECT_DIR"
+log "Fetching versions..."
+
+go_latest="$(get_go_latest)"
+[[ -n "$go_latest" ]] || { echo "Error: unable to fetch the latest stable Go version" >&2; exit 1; }
+log "  Latest stable Go version            : $go_latest"
+
+dagger_latest="$(get_dagger_latest)"
+[[ -n "$dagger_latest" ]] || { echo "Error: unable to fetch the latest Dagger version" >&2; exit 1; }
+log "  Latest Dagger version               : $dagger_latest"
+
+dagger_go_min="$(get_dagger_go_min "$dagger_latest")"
+if [[ -z "$dagger_go_min" ]]; then
+  warn "Go version required by Dagger SDK $dagger_latest not found"
+fi
+[[ -n "$dagger_go_min" ]] && log "  Min. Go version required by Dagger  : $dagger_go_min"
+
+local_dagger="$(get_local_dagger)"
+if [[ -n "$local_dagger" ]]; then
+  log "  Local Dagger version                : $local_dagger"
+else
+  log "  Local Dagger version                : (not installed)"
+fi
+
+HAS_DAGGER=0
+if has_dagger_in_repo; then
+  HAS_DAGGER=1
+fi
+
+go_proposed="$go_latest"
+if [[ "$HAS_DAGGER" -eq 1 && -n "$dagger_go_min" ]]; then
+  go_proposed="$dagger_go_min"
+fi
+dagger_proposed="$dagger_latest"
+go_proposed_minor="${go_proposed%.*}"
+
+log ""
+log "Proposal:"
+if [[ "$HAS_DAGGER" -eq 1 ]]; then
+  log "  Dagger  : $dagger_proposed"
+fi
+log "  Go      : $go_proposed"
+if [[ "$HAS_DAGGER" -eq 0 ]]; then
+  log "No Dagger reference in the project. Only Go will be considered."
+fi
+log ""
+
+# Current values
+go_cur=""
+if [[ -f "$GOMOD" ]]; then
+  go_cur="$(sed -n 's/^go[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' "$GOMOD" | head -n1)"
+fi
+
+dc_go_present=0
+dc_go_cur=""
+dc_dagger_present=0
+dc_dagger_cur=""
+if [[ -n "$DEVCONTAINER" ]]; then
+  if jq -e --arg f "$GO_FEATURE" '.features[$f] != null' "$DEVCONTAINER" >/dev/null 2>&1; then
+    dc_go_present=1
+    dc_go_cur="$(jq -r --arg f "$GO_FEATURE" '.features[$f].version // empty' "$DEVCONTAINER")"
+  fi
+  if jq -e --arg f "$DAGGER_FEATURE" '.features[$f] | (.plugin == "dagger")' "$DEVCONTAINER" >/dev/null 2>&1; then
+    dc_dagger_present=1
+    dc_dagger_cur="$(jq -r --arg f "$DAGGER_FEATURE" '.features[$f].version // empty' "$DEVCONTAINER")"
+  fi
+fi
+
+show_change() {
+  local label="$1" present="$2" cur="$3" proposed="$4"
+  if [[ "$present" -eq 1 ]]; then
+    if [[ -z "$cur" ]]; then
+      log "  $label : (no version set) -> $proposed"
+    elif [[ "$cur" == "$proposed" ]]; then
+      log "  $label : $cur (already up to date)"
+    else
+      log "  $label : $cur -> $proposed"
+    fi
+  else
+    log "  $label : (absent)"
+  fi
+}
+
+log "Planned changes:"
+if [[ -f "$GOMOD" ]]; then
+  show_change "go.mod (go)          " 1 "$go_cur" "$go_proposed"
+fi
+if [[ -n "$DEVCONTAINER" ]]; then
+  show_change "devcontainer go       " "$dc_go_present" "$dc_go_cur" "$go_proposed_minor"
+  if [[ "$HAS_DAGGER" -eq 1 ]]; then
+    show_change "devcontainer dagger   " "$dc_dagger_present" "$dc_dagger_cur" "$dagger_proposed"
+  fi
+fi
+
+go_has_change=0
+dc_has_change=0
+[[ -n "$go_cur" && "$go_cur" != "$go_proposed" ]] && go_has_change=1
+[[ "$dc_go_present" -eq 1 && "$dc_go_cur" != "$go_proposed_minor" ]] && dc_has_change=1
+if [[ "$HAS_DAGGER" -eq 1 ]]; then
+  [[ "$dc_dagger_present" -eq 1 && "$dc_dagger_cur" != "$dagger_proposed" ]] && dc_has_change=1
+fi
+
+if [[ "$go_has_change" -eq 0 && "$dc_has_change" -eq 0 ]]; then
+  log ""
+  log "Nothing to update."
+  exit 0
+fi
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  log ""
+  log "(dry run) no changes applied."
+  exit 0
+fi
+
+if [[ "$APPLY_WITHOUT_CONFIRM" -ne 1 ]]; then
+  printf "Apply these changes? [y/N] "
+  read -r answer
+  case "$answer" in
+    y|Y|o|O) ;;
+    *) log "Cancelled."; exit 1 ;;
+  esac
+fi
+
+if [[ "$go_has_change" -eq 1 ]]; then
+  sed -i "s/^go[[:space:]]\+[0-9][0-9.]*[[:space:]]*$/go $go_proposed/" "$GOMOD"
+fi
+
+if [[ "$dc_has_change" -eq 1 ]]; then
+  tmp="$(mktemp)"
+  if [[ "$dc_go_present" -eq 1 && "$dc_go_cur" != "$go_proposed_minor" ]]; then
+    jq --arg f "$GO_FEATURE" --arg v "$go_proposed_minor" '.features[$f].version = $v' "$DEVCONTAINER" > "$tmp" && mv "$tmp" "$DEVCONTAINER"
+  fi
+  if [[ "$HAS_DAGGER" -eq 1 && "$dc_dagger_present" -eq 1 && "$dc_dagger_cur" != "$dagger_proposed" ]]; then
+    jq --arg f "$DAGGER_FEATURE" --arg v "$dagger_proposed" '.features[$f].version = $v' "$DEVCONTAINER" > "$tmp" && mv "$tmp" "$DEVCONTAINER"
+  fi
+  rm -f "$tmp"
+fi
+
+log ""
+log "Done."
