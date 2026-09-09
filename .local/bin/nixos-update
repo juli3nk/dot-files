@@ -21,7 +21,7 @@ set -euo pipefail
 # FLAKE_DIR="${FLAKE_DIR:-$HOME/nixos-config}"
 FLAKE_DIR="./"
 HOSTNAME_CURRENT="$(hostname)"
-HOSTNAME="${1:-$(hostname)}"
+HOSTNAME="$HOSTNAME_CURRENT"
 NIXOS_VERSION=""
 UPGRADE_MODE=false
 NOTIFY=true
@@ -148,8 +148,9 @@ upgrade_nixos_version() {
     warn "⚠️  You are about to upgrade to NixOS ${new_version}"
     warn "    This is a major change. Make sure you have backups!"
     echo ""
-    read -p "Continue with upgrade? (yes/N) " -r
-    if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+    read -p "Continue with upgrade? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         log "❌ Upgrade cancelled"
         # Restore the backup
         mv flake.nix.backup-* flake.nix 2>/dev/null || true
@@ -226,6 +227,8 @@ cd "$FLAKE_DIR" || error "Cannot cd to $FLAKE_DIR"
 
 # Check if the flake target exists
 flake_target="$(nix flake show --json 2>/dev/null | jq -r --arg host "$HOSTNAME" '.nixosConfigurations | keys[] | select(contains($host))')"
+pwd
+echo "$flake_target"
 if [ -z "$flake_target" ]; then
     error "Configuration '${HOSTNAME}' not found in flake!\nAvailable: $(nix flake show 2>/dev/null | awk '/nixosConfigurations/ { print $2 }' | sort)"
 fi
