@@ -32,7 +32,7 @@ common:
     - 'tmp'
 
 templates:
-  nox:
+  nowm:
     ignore:
       - '.wm'
   shell:
@@ -44,25 +44,30 @@ templates:
       - '.gnupg/scdaemon.conf'
       - '.local/bin/local-profile'
       - '.local/bin/update-kubeconfig'
+      - '.local/lib/log.sh'
+      - '.local/lib/utils.sh'
       - '.local/sbin/pinentry-auto'
       - '.shell_custom.d/dockerfunc.sh'
       - '.shell_custom.d/git.sh'
       - '.shell_custom.d/sshagent.sh'
+  gui:
+    links:
+      - '.config/alacritty'
+      - '.local/bin/notify'
+      - '.local/bin/xwcopy'
+      - '.local/bin/xwpaste'
+      - '.local/lib/de.sh'
   wm-common:
     dirs:
       - name: '.config/systemd/user'
       - name: '.config/wm/conf.d'
-      - name: '.local/sbin'
       - name: '.wm'
     links:
-      - '.config/alacritty'
       - '.config/avizo'
       - '.config/Code/User/settings.json'
       - '.config/systemd/user/avizo.service'
-      - '.config/systemd/user/battery-watch.service'
       - '.config/systemd/user/cliphist.service'
       - '.config/systemd/user/polkit-agent.service'
-      - '.config/systemd/user/redwlsun.service'
       - '.config/wm-common/conf.d/assigns:.config/wm/conf.d/assigns'
       - '.config/wm-common/conf.d/exec:.config/wm/conf.d/exec'
       - '.config/wm-common/conf.d/fn-keys:.config/wm/conf.d/fn-keys'
@@ -73,22 +78,9 @@ templates:
       - '.config/wm-common/conf.d/terminal:.config/wm/conf.d/terminal'
       - '.config/wm-common/conf.d/theme:.config/wm/conf.d/theme'
       - '.config/wm-common/conf.d/windows:.config/wm/conf.d/windows'
-      - '.local/bin/fw'
-      - '.local/bin/local-profile'
-      - '.local/bin/notify'
-      - '.local/bin/screen-scale'
-      - '.local/bin/wifi-connect'
       - '.local/bin/wm-list-keys'
-      - '.local/bin/xwcopy'
-      - '.local/bin/xwpaste'
-      - '.local/lib/de.sh'
-      - '.local/lib/log.sh'
-      - '.local/lib/sound.sh'
-      - '.local/lib/utils.sh'
       - '.local/sbin/aide'
-      - '.local/sbin/battery-watch'
       - '.local/sbin/polkit-agent'
-      - '.local/sbin/redwlsun'
   wm-sway:
     dirs:
       - name: '.config/sway'
@@ -117,6 +109,17 @@ templates:
       - '.config/i3/conf.d/launchers:.config/wm/conf.d/launchers'
       - '.config/i3/conf.d/restart:.config/wm/conf.d/restart'
       - '.Xresources'
+  laptop:
+    links:
+      - '.config/systemd/user/battery-watch.service'
+      - '.config/systemd/user/redwlsun.service'
+      - '.gnupg/scdaemon.conf'
+      - '.local/bin/fw'
+      - '.local/bin/screen-scale'
+      - '.local/bin/wifi-connect'
+      - '.local/sbin/battery-watch'
+      - '.local/sbin/redwlsun'
+      - '.local/lib/sound.sh'
   perso:
     links:
       - '.config/systemd/user/local-net.service'
@@ -131,7 +134,7 @@ templates:
 profiles:
   container:
     include:
-      - 'nox'
+      - 'nowm'
     links:
       - '.vim-plugged:Dotfiles/.vim/plugged'
   me:
@@ -142,5 +145,6 @@ profiles:
       - 'perso'
   work:
     include:
-      - 'nox'
+      - 'nowm'
       - 'shell'
+      - 'gui'

@@ -3,25 +3,6 @@
 #
 # Apps
 #
-devgo() {
-  # --mount type=bind,src=${SSH_AUTH_SOCK},dst=${SSH_AUTH_SOCK},ro \
-  # -e "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" \
-  local privileged
-  if [ "$1" == "privileged" ]; then
-    privileged="--privileged"
-  fi
-  local mountdst
-  mountdst="/go/src/github.com/$(echo "$PWD" | awk 'BEGIN { FS="/"; OFS="/" } { print $(NF-1), $NF }')"
-
-  docker container run \
-    -ti \
-    --rm $privileged \
-    --mount type=bind,src="${PWD}",dst="$mountdst" \
-    --mount type=bind,src="${HOME}/.gitconfig",dst=/root/.gitconfig,ro \
-    --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
-    --workdir "$mountdst" \
-    juli3nk/dev:go
-}
 dockerlint() {
   docker container run \
     -i \

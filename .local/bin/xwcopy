@@ -6,10 +6,10 @@
 DE=$(get_desktop_environment)
 is_desktop_environment_supported "$DE"
 
-if [[ "$DE" == "i3" ]]; then
-    COPY_CMD="xclip -selection clipboard"
-elif [[ "$DE" == "sway" ]]; then
+if [[ "$DE" == "sway" ]]; then
     COPY_CMD="wl-copy"
+else
+    COPY_CMD="xclip -selection clipboard"
 fi
 
 # Vérifier si stdin contient des données

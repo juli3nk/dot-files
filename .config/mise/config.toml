@@ -1,0 +1,4 @@
+[tools]
+bat = "latest"
+"github:juli3nk/dotfiles" = "latest"
+neovim = "latest"

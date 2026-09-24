@@ -16,6 +16,7 @@ get_local_net() {
 }
 
 get_docker_net() {
+    command -v docker >/dev/null || return 0
     docker network inspect --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' bridge
 }
 
@@ -47,7 +48,7 @@ disable_vpn_routing() {
 }
 
 
-for cmd in docker ipcalc jq nft; do
+for cmd in ipcalc jq nft; do
     command_exists "$cmd"
 done
 

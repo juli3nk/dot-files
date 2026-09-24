@@ -71,3 +71,9 @@ if [ -d "${HOME}/.shell_custom.d" ]; then
 
   unset i
 fi
+
+# opencode
+export PATH=/home/julien/.opencode/bin:$PATH
+
+# ~/.bashrc
+eval "$(~/.local/bin/mise activate bash)"
