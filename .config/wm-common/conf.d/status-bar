@@ -5,7 +5,8 @@ bar {
   position top
 
   # When the status_command prints a new line to stdout, swaybar updates.
-  status_command $HOME/.local/bin/mybar
+  #status_command $HOME/.local/bin/mybar
+  status_command while date +'%Y-%m-%d %X'; do sleep 1; done
 
   colors {
     statusline #ffffff

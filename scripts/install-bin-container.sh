@@ -15,14 +15,8 @@ declare -a apps=(
   "nerdctl"
 )
 
-  "github-cli"
-
 for app in "${apps[@]}"; do
-  app_name="$(echo "$app" | awk -F';' '{ print $1 }')"
-  app_url="$(echo "$app" | awk -F';' '{ print $2 }')"
-
-  asdf plugin add "$app_name" "$app_url"
-  asdf install "$app_name" latest
+  mise use -g "$app"
 done
 
 # Skopeo

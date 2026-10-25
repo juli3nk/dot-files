@@ -8,7 +8,7 @@ CURRENT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 PATH=${HOME}/.local/bin:${PATH}
 
 
-# Install apps using asdf
+# Install apps using mise
 declare -a apps=(
   "helm"
   "kind"
@@ -18,11 +18,7 @@ declare -a apps=(
 )
 
 for app in "${apps[@]}"; do
-  app_name="$(echo "$app" | awk -F';' '{ print $1 }')"
-  app_url="$(echo "$app" | awk -F';' '{ print $2 }')"
-
-  asdf plugin add "$app_name" "$app_url"
-  asdf install "$app_name" latest
+  mise use -g "$app"
 done
 
 # Kubectl plugins

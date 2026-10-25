@@ -6,44 +6,14 @@ CURRENT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 . "${CURRENT_DIR}/utils.sh"
 
 LOCAL_BIN="${HOME}/.local/bin"
-PATH=${LOCAL_BIN}:${PATH}
-
-# asdf
-ASDF_DIR_PATH="${HOME}/.asdf"
-ASDF_REPO_URL="github.com/asdf-vm/asdf"
-
-ASDF_VERSION="$(get_latest_tag "$ASDF_REPO_URL")"
+PATH="${LOCAL_BIN}:${PATH}"
 
 mkdir -p "$LOCAL_BIN"
 
-if [ ! -f "${LOCAL_BIN}/bin/asdf" ]; then
-  curl -sfL "https://${ASDF_REPO_URL}/releases/download/v${ASDF_VERSION}/asdf-v${ASDF_VERSION}-linux-amd64.tar.gz" | tar -xzC "$LOCAL_BIN"
+# Mise
+if [ ! -f "${LOCAL_BIN}/bin/mise" ]; then
+  curl https://mise.run | sh
 fi
-
-# Install apps using asdf
-declare -a apps=(
-  "age"
-  "bat;https://github.com/juli3nk/asdf-bat.git"
-  "bottom"
-  "dotfiles;https://github.com/juli3nk/asdf-dotfiles.git"
-  "eza;https://github.com/juli3nk/asdf-eza.git"
-  "github-cli"
-  "lefthook"
-  "neovim;https://github.com/juli3nk/asdf-neovim.git"
-  "pluto"
-  "ripgrep"
-  "sops"
-  "yq"
-  "zoxide"
-)
-
-for app in "${apps[@]}"; do
-  app_name="$(echo "$app" | awk -F';' '{ print $1 }')"
-  app_url="$(echo "$app" | awk -F';' '{ print $2 }')"
-
-  asdf plugin add "$app_name" "$app_url"
-  asdf install "$app_name" latest
-done
 
 # FZF
 if [ ! -d "${HOME}/.fzf" ]; then

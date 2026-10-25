@@ -55,11 +55,6 @@ shopt -s checkwinsize
 # Customs
 #-----------------------------------------------------------------------------
 
-export FZF_DEFAULT_OPTS=" \
---color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
---color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
-
 # You may want to put all your additions into a separate file like
 # ~/.shell_custom, instead of adding them here directly.
 if [ -d "${HOME}/.shell_custom.d" ]; then
@@ -71,9 +66,3 @@ if [ -d "${HOME}/.shell_custom.d" ]; then
 
   unset i
 fi
-
-# opencode
-export PATH=/home/julien/.opencode/bin:$PATH
-
-# ~/.bashrc
-eval "$(~/.local/bin/mise activate bash)"

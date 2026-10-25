@@ -15,7 +15,6 @@ declare -a extensions=(
   "chouzz.vscode-better-align"
   "yzhang.markdown-all-in-one"
 )
-# "ms-vscode-remote.remote-wsl"
 
 
 for extension in "${extensions[@]}"; do

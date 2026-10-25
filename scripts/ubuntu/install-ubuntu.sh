@@ -116,46 +116,33 @@ configure_ssh
 # Install packages
 sudo apt update
 sudo apt install --no-install-recommends --yes \
-  # Security Utilities
   apt-transport-https \
   ca-certificates \
-  clamav \         # Open source virus scanning suite
-  cryptsetup \     # Reading / writing encrypted volumes
-  gnupg \          # PGP encryption, signing and verifying
-  git-crypt \      # Transparent encryption for git repos
-  lynis \          # Scan system for common security issues
-  openssl \        # Cryptography and SSL/TLS Toolkit
-  rkhunter \       # Search / detect potential root kits
-
-  # Monitoring, management and stats
-  btop \           # Live system resource monitoring
-  bmon \           # Bandwidth utilization monitor
-  ctop \           # Container metrics and monitoring
+  cryptsetup \
+  gnupg \
+  openssl \
+  btop \
+  bmon \
   htop \
-  gping \          # Interactive ping tool, with graph
-  glances \        # Resource monitor + web and API
-  goaccess \       # Web log analyzer and viewer
-  speedtest-cli \  # Command line speed test utility
-
-  # CLI Power Basics
-  aria2 \          # Resuming download util (better wget)
-  ctags \          # Indexing of file info + headers
-  diff-so-fancy \  # Readable file compares (better diff)
-  duf \            # Get info on mounted disks (better df)
-  hyperfine \      # Benchmarking for arbitrary commands
-  jq \             # JSON parser, output and query files
-  moreutils \      # More utilities for manipulating files
-  most \           # Multi-window scroll pager (better less)
-  procs \          # Advanced process viewer (better ps)
-  ripgrep \        # Searching within files (better grep)
-  sd \             # RegEx find and replace (better sed)
-  tealdeer \       # Reader for command docs (better man)
-  tree \           # Directory listings as tree structure
-  tokei \          # Count lines of code (better cloc)
-  trash-cli \      # Record and restore removed files
-  zoxide \         # Auto-learning navigation (better cd)
-
-  # Misc
+  gping \
+  glances \
+  goaccess \
+  speedtest-cli \
+  aria2 \
+  universal-ctags \
+  duf \
+  hyperfine \
+  jq \
+  moreutils \
+  most \
+  procs \
+  ripgrep \
+  sd \
+  tealdeer \
+  tree \
+  tokei \
+  trash-cli \
+  usbutils \
   extrepo \
   chrony \
   bc \
@@ -166,7 +153,11 @@ sudo apt install --no-install-recommends --yes \
   libfuse2 \
   make \
   pwgen \
-  nvme-cli
+  snapd \
+  nvme-cli \
+  pavucontrol \
+  pasystray \
+  playerctl
 
 ## Docker
 install_docker

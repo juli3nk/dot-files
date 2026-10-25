@@ -59,12 +59,6 @@ sudo apt install --no-install-recommends --yes \
   bluez \
   brightnessctl \
   fprintd \
-  gimp \
-  keepassxc \
   libpam-fprintd \
-  libreoffice \
   libvirt0 \
-  pavucontrol \
-  pasystray \
-  playerctl \
   udiskie
